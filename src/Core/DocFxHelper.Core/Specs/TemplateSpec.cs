@@ -14,5 +14,15 @@ namespace DocFxHelper.Core.Specs
 
     public TemplateCondition? Condition { get; init; }
   }
+  public enum TemplateScope
+  {
+    Site,
+    Source
+  }
 
+  public sealed record TemplateCondition
+  {
+    public string? RequiredTag { get; init; }
+    public string? RequiredSourceType { get; init; }
+  }
 }
