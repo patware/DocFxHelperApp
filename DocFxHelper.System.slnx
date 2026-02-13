@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="src/Core/DocFxHelper.Abstractions/DocFxHelper.Abstractions.csproj" />
+    <Project Path="src/Core/DocFxHelper.Core/DocFxHelper.Core.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/DocFxHelper.Core.Tests/DocFxHelper.Core.Tests.csproj" />
+  </Folder>
+</Solution>
