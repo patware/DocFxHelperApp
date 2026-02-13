@@ -1,5 +1,5 @@
-﻿using DocFxHelper.Abstractions;
-using DocFxHelper.Abstractions.Engine;
+﻿using DocFxHelper.Abstractions.Engine;
+using DocFxHelper.Abstractions.Time;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +8,7 @@ namespace DocFxHelper.Core.Engine
 {
   public sealed class DocFxHelperEngine : IDocFxHelperEngine
   {
-    public DocFxHelperEngine(Abstractions.ITimeService timeService)
+    public DocFxHelperEngine(ITimeService timeService)
     {
       _time = timeService;
     }

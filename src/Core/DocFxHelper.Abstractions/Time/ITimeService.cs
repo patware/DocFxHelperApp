@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DocFxHelper.Abstractions
+namespace DocFxHelper.Abstractions.Time
 {
   public interface ITimeService
   {

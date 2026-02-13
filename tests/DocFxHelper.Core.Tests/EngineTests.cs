@@ -1,4 +1,5 @@
-﻿using DocFxHelper.Core.Engine;
+﻿using DocFxHelper.Abstractions.Time;
+using DocFxHelper.Core.Engine;
 using Moq;
 
 namespace DocFxHelper.Core.Tests;
@@ -8,7 +9,7 @@ public class EngineTests
   [Fact]
   public async Task BuildAsync_ModeFull_ReturnsSuccess()
   {
-    var timeServiceMock = new Mock<Abstractions.ITimeService>();
+    var timeServiceMock = new Mock<ITimeService>();
 
     timeServiceMock.SetupGet(m => m.UtcNow).Returns(new DateTimeOffset(2026, 02, 01, 12, 00, 00, TimeSpan.Zero));
 
@@ -25,7 +26,7 @@ public class EngineTests
   [Fact]
   public async Task BuildAsync_ModeIncremental_ReturnsSuccess()
   {
-    var timeServiceMock = new Mock<Abstractions.ITimeService>();
+    var timeServiceMock = new Mock<ITimeService>();
 
     timeServiceMock.SetupGet(m => m.UtcNow).Returns(new DateTimeOffset(2026,02,01, 12, 00, 00, TimeSpan.Zero));
 
