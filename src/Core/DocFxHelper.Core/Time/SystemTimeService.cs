@@ -1,7 +1,4 @@
 ﻿using DocFxHelper.Abstractions.Time;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DocFxHelper.Core.Time
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DocFxHelper.Core.Specs
+﻿namespace DocFxHelper.Core.Specs
 {
   public sealed record MasterSpec
   {

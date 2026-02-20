@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DocFxHelper.Abstractions.Engine
+﻿namespace DocFxHelper.Abstractions.Engine
 {
   public enum BuildMode
   {

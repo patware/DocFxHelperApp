@@ -15,11 +15,11 @@ public class EngineTests
 
     var engine = new DocFxHelperEngine(timeServiceMock.Object);
 
-    var result = await engine.BuildAsync(new Abstractions.Engine.BuildRequest 
-      { 
-        Sources = [],
-        Mode = Abstractions.Engine.BuildMode.Full
-      }, 
+    var result = await engine.BuildAsync(new Abstractions.Engine.BuildRequest
+    {
+      Sources = [],
+      Mode = Abstractions.Engine.BuildMode.Full
+    },
       TestContext.Current.CancellationToken);
   }
 
@@ -28,7 +28,7 @@ public class EngineTests
   {
     var timeServiceMock = new Mock<ITimeService>();
 
-    timeServiceMock.SetupGet(m => m.UtcNow).Returns(new DateTimeOffset(2026,02,01, 12, 00, 00, TimeSpan.Zero));
+    timeServiceMock.SetupGet(m => m.UtcNow).Returns(new DateTimeOffset(2026, 02, 01, 12, 00, 00, TimeSpan.Zero));
 
     var engine = new DocFxHelperEngine(timeServiceMock.Object);
 
@@ -40,4 +40,5 @@ public class EngineTests
       },
       TestContext.Current.CancellationToken);
   }
+
 }
