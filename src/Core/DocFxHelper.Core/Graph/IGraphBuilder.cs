@@ -1,10 +1,13 @@
-﻿namespace DocFxHelper.Core.Graph
+﻿using DocFxHelper.Core.Specs;
+
+namespace DocFxHelper.Core.Graph
 {
   internal interface IGraphBuilder
   {
     SiteGraph Build(
-            IReadOnlyList<Specs.SourceSpec> sources,
-            Specs.MasterSpec master,
-            Specs.RunSpec run);
+      IReadOnlyList<SourceSpec> sources,
+      Specs.MasterSpec master,
+      Specs.RunSpec run
+      );
   }
 }

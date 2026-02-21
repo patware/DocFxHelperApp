@@ -2,6 +2,7 @@
   <Folder Name="/Core/">
     <Project Path="src/Core/DocFxHelper.Abstractions/DocFxHelper.Abstractions.csproj" />
     <Project Path="src/Core/DocFxHelper.Core/DocFxHelper.Core.csproj" />
+    <Project Path="src/DocFxHelper.Infrastructure/DocFxHelper.Infrastructure.csproj" Id="f08533e3-b29a-4f32-b836-49d97bd54deb" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -10,5 +11,6 @@
   <Folder Name="/src/" />
   <Folder Name="/tests/">
     <Project Path="tests/DocFxHelper.Core.Tests/DocFxHelper.Core.Tests.csproj" />
+    <Project Path="tests/DocFxHelper.Infrastructure.UnitTests/DocFxHelper.Infrastructure.Tests.csproj" Id="d41c75aa-8f7d-4374-87fc-b6da8a04eef6" />
   </Folder>
 </Solution>

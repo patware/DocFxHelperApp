@@ -2,24 +2,50 @@
 {
   public sealed record SourceSpec
   {
+    /// <summary>
+    /// Gets the unique identifier for the source.
+    /// </summary>
+    /// <remarks>The Id property is required and must be provided during initialization. It serves as a
+    /// primary key for identifying the sources uniquely within its context.</remarks>
     public required string Id { get; init; }
 
-    public string? ParentId { get; init; }
 
-    public required string SourceType { get; init; }
+    /// <summary>
+    /// Gets the type of source that this instance represents.
+    /// </summary>
+    /// <remarks>The SourceType property is required and must be initialized upon object creation. It defines
+    /// the origin of the data being processed, which can influence how the data is handled or interpreted.</remarks>
+    public required SourceType SourceType { get; init; }
 
-    public required string TargetPath { get; init; }
 
+    /// <summary>
+    /// Gets the display name of the object, which is used for presentation purposes in navigation and/or menus.
+    /// </summary>
+    /// <remarks>The display name is required and must be provided during initialization. It is typically used
+    /// in user interfaces to represent the object in a user-friendly manner.</remarks>
     public required string DisplayName { get; init; }
 
+    /// <summary>
+    /// Gets the name of the default page to display when no specific page is requested.
+    /// </summary>
+    /// <remarks>The default page is typically used as a fallback in navigation scenarios. By default, this
+    /// property is set to "default.md". Changing this value allows customization of the landing page for documentation
+    /// or content navigation.</remarks>
     public string DefaultPage { get; init; } = "default.md";
 
-    public IReadOnlyCollection<string> Tags { get; init; }
-        = Array.Empty<string>();
+    /// <summary>
+    /// Gets the collection of tags associated with the item.  Tags can be leveraged in Mustache templates to generate different content based on the presence of specific tags. 
+    /// For example, you can have a tag "IsPublic" and use it in your Mustache template to conditionally include or exclude certain sections of the generated documentation.
+    /// </summary>
+    /// <remarks>The collection is immutable and is initialized to an empty collection if no tags are provided.</remarks>
+    public IReadOnlyCollection<string> Tags { get; init; } = [];
 
-    public MenuPlacementSpec? Menu { get; init; }
-
-    public IReadOnlyCollection<TemplateSpec> Templates { get; init; }
-        = Array.Empty<TemplateSpec>();
+    /// <summary>
+    /// Gets the collection of available template specifications.
+    /// </summary>
+    /// <remarks>The collection is read-only and is initialized to an empty collection if no templates are
+    /// specified.</remarks>
+    public IReadOnlyCollection<TemplateSpec> Templates { get; init; } = [];
   }
+
 }
