@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DocFxHelper.Core.Specs
+{
+  public sealed record BuildSpec
+  {
+    public required string BuildId { get; set; }
+
+    public required string SourceName { get; set; }
+
+    public required string AuthorName { get; set; }
+
+    public required string AuthorEmail { get; set; }
+  }
+}

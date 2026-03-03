@@ -7,7 +7,7 @@ namespace DocFxHelper.Core.Graph
   public class GraphBuilder : IGraphBuilder
   {
 
-    public SiteGraph Build(IReadOnlyList<SourceSpec> sources, MasterSpec master, RunSpec run)
+    public SiteGraph Build(IReadOnlyList<SourceSpec> sources, MasterSpec master, Run run)
     {
 
       var sourcesDictionary = new Dictionary<string, SourceNode>();

@@ -18,17 +18,23 @@ namespace DocFxHelper.Core.Tests
         }
       };
 
-      var sources = new List<SourceSpec>
+      var sources = new List<AdoWikiSourceSpec>
       {
         new() {
           Id = "a",
-          SourceType = SourceType.AdoWiki,
-          DisplayName = "A"
+          DisplayName = "A",
+          WikiUrl = "https://dev.azure.com/organization/project/_wiki/wikis/wiki-name"
         }
       };
 
-      var run = new RunSpec { BuildId = "1", DocFxHelperEngineVersion = "0.0.1", DocFxEngineVersion = "2.78.4" };
-      
+      var run = new Run
+      {
+        Id = 1,
+        BuildId = "20250101.1",
+        DocFxEngineVersion = "1.0.0",
+        DocFxHelperEngineVersion = "2.7"
+      };
+
       var builder = new GraphBuilder();
       var graph = builder.Build(sources, master, run);
 

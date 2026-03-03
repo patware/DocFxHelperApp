@@ -1,4 +1,6 @@
-﻿namespace DocFxHelper.Core.Specs
+﻿using DocFxHelper.Core.Specs;
+
+namespace DocFxHelper.Core
 {
   /// <summary>
   /// Represents the details for a documentation generation run, including build identification, timestamps, and
@@ -8,8 +10,13 @@
   /// generation process. The information provided by this type can be used for auditing, tracking, or associating
   /// generated documentation with a particular build and engine version. All properties are immutable after
   /// initialization.</remarks>
-  public sealed record RunSpec
+  public sealed record Run
   {
+    /// <summary>
+    /// Unique identifier
+    /// </summary>
+    public required int Id { get; set; }
+
     /// <summary>
     /// Gets the unique identifier for the build associated with the current instance in the form of yyyyMMdd.rev
     /// </summary>
@@ -34,6 +41,8 @@
     public required string DocFxEngineVersion { get; init; }
 
     public IReadOnlyCollection<SourceSpec> Templates { get; init; } = [];
+
+
 
 
 

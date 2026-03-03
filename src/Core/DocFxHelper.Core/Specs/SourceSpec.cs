@@ -1,6 +1,11 @@
-﻿namespace DocFxHelper.Core.Specs
+﻿using System.Text.Json.Serialization;
+
+namespace DocFxHelper.Core.Specs
 {
-  public sealed record SourceSpec
+  [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+  [JsonDerivedType(typeof(AdoWikiSourceSpec), typeDiscriminator: nameof(SourceType.AdoWiki))]
+
+  public abstract class SourceSpec
   {
     /// <summary>
     /// Gets the unique identifier for the source.
@@ -10,12 +15,12 @@
     public required string Id { get; init; }
 
 
-    /// <summary>
-    /// Gets the type of source that this instance represents.
-    /// </summary>
-    /// <remarks>The SourceType property is required and must be initialized upon object creation. It defines
-    /// the origin of the data being processed, which can influence how the data is handled or interpreted.</remarks>
-    public required SourceType SourceType { get; init; }
+    ///// <summary>
+    ///// Gets the type of source that this instance represents.
+    ///// </summary>
+    ///// <remarks>The SourceType property is required and must be initialized upon object creation. It defines
+    ///// the origin of the data being processed, which can influence how the data is handled or interpreted.</remarks>
+    //public required SourceType SourceType { get; init; }
 
 
     /// <summary>

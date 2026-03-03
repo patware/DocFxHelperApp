@@ -6,6 +6,6 @@ namespace DocFxHelper.Core.Graph
   {
     public required IReadOnlyList<SourceSpec> Sources { get; init; }
     public required MasterSpec Master { get; init; }
-    public required RunSpec Run { get; init; }
+    public required Run Run { get; init; }
   }
 }

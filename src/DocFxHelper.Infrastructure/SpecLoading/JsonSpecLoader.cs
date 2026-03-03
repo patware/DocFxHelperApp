@@ -9,8 +9,8 @@ namespace DocFxHelper.Infrastructure.SpecLoading
 {
   public class JsonSpecLoader : ISpecLoader
   {
-    private IFileSystem _fileSystem;
-    private JsonSerializerOptions _jsonSerializerOptions;
+    private readonly IFileSystem _fileSystem;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
     public JsonSpecLoader(IFileSystem fileSystem)
     {
@@ -38,7 +38,7 @@ namespace DocFxHelper.Infrastructure.SpecLoading
       }
 
     }
-        
+
 
     public async Task<SourceSpec> LoadSourceSpecAsync(string path)
     {
@@ -55,6 +55,39 @@ namespace DocFxHelper.Infrastructure.SpecLoading
         throw new System.IO.FileNotFoundException($"SourceSpec file not found at path: {path}");
       }
     }
-        
+
+    public async Task<BuildSpec> LoadBuildSpecAsync(string path)
+    {
+      if (_fileSystem.FileExists(path))
+      {
+        var json = await _fileSystem.ReadAllTextAsync(path);
+
+        var buildSpec = System.Text.Json.JsonSerializer.Deserialize<BuildSpec>(json, _jsonSerializerOptions);
+
+        return buildSpec ?? throw new InvalidOperationException($"Failed to deserialize BuildSpec from {path}");
+      }
+      else
+      {
+        throw new System.IO.FileNotFoundException($"BuildSpec file not found at path: {path}");
+      }
+    }
+
+    public async Task<TemplateSpec> LoadTemplateSpecAsync(string path)
+    {
+      if (_fileSystem.FileExists(path))
+      {
+        var json = await _fileSystem.ReadAllTextAsync(path);
+
+        var templateSpec = System.Text.Json.JsonSerializer.Deserialize<TemplateSpec>(json, _jsonSerializerOptions);
+
+        return templateSpec ?? throw new InvalidOperationException($"Failed to deserialize TemplateSpec from {path}");
+      }
+      else
+      {
+        throw new System.IO.FileNotFoundException($"TemplateSpec file not found at path: {path}");
+      }
+    }
+
+
   }
 }

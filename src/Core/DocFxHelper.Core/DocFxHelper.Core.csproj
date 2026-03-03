@@ -4,6 +4,12 @@
     <ProjectReference Include="..\DocFxHelper.Abstractions\DocFxHelper.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Build\" />
+    <Folder Include="Engine\" />
+    <Folder Include="Run\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
