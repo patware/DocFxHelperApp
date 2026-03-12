@@ -1,11 +1,12 @@
 ﻿using DocFxHelper.Core.Specs;
+using DocFxHelper.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DocFxHelper.Infrastructure.SpecLoading
+namespace DocFxHelper.Core.Specs
 {
   public class JsonSpecLoader : ISpecLoader
   {

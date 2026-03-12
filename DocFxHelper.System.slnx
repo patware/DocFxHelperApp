@@ -9,5 +9,7 @@
   </Folder>
   <Project Path="src/Core/DocFxHelper.Abstractions/DocFxHelper.Abstractions.csproj" />
   <Project Path="src/Core/DocFxHelper.Core/DocFxHelper.Core.csproj" />
+  <Project Path="src/DocFxHelper.ConsoleApp/DocFxHelper.ConsoleApp.csproj" Id="bb5f9daf-4dde-4f48-b77a-14586c2cbc88" />
+  <Project Path="src/DocFxHelper.Domain/DocFxHelper.Domain.csproj" Id="e7d80105-ba60-4da5-9f4b-77e3ba18150e" />
   <Project Path="src/DocFxHelper.Infrastructure/DocFxHelper.Infrastructure.csproj" Id="f08533e3-b29a-4f32-b836-49d97bd54deb" />
 </Solution>

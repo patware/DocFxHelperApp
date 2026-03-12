@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DocFxHelper.Infrastructure\DocFxHelper.Infrastructure.csproj" />
     <ProjectReference Include="..\DocFxHelper.Abstractions\DocFxHelper.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Build\" />
-    <Folder Include="Engine\" />
     <Folder Include="Run\" />
   </ItemGroup>
 

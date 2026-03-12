@@ -6,8 +6,7 @@ namespace DocFxHelper.Core.Graph
   {
     SiteGraph Build(
       IReadOnlyList<SourceSpec> sources,
-      Specs.MasterSpec master,
-      Run run
+      Specs.MasterSpec master
       );
   }
 }

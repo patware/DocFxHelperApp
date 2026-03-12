@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DocFxHelper.ConsoleApp": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\DocFxHelperSamples\\Empty"
+    }
+  }
+}

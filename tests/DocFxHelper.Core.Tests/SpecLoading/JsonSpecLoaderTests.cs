@@ -1,10 +1,11 @@
-﻿using DocFxHelper.Infrastructure.SpecLoading;
+﻿using DocFxHelper.Core.Specs;
+using DocFxHelper.Infrastructure;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DocFxHelper.Infrastructure.Tests.SpecLoading
+namespace DocFxHelper.Core.Tests.SpecLoading
 {
   public class JsonSpecLoaderTests
   {
@@ -101,9 +102,9 @@ namespace DocFxHelper.Infrastructure.Tests.SpecLoading
 
       Assert.Equal("SimpleWiki", sourceSpec.Id);      
       Assert.Equal("Simple", sourceSpec.DisplayName);      
-      Assert.IsType<Core.Specs.AdoWikiSourceSpec>(sourceSpec);
+      Assert.IsType<AdoWikiSourceSpec>(sourceSpec);
 
-      var adoWikiSourceSpec = sourceSpec as Core.Specs.AdoWikiSourceSpec;
+      var adoWikiSourceSpec = sourceSpec as AdoWikiSourceSpec;
       Assert.Equal("https://dev.azure.com/org/project/_wiki/wikis/wiki-name", adoWikiSourceSpec?.WikiUrl);
 
     }

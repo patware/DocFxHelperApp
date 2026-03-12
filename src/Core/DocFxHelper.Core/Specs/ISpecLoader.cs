@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DocFxHelper.Infrastructure.SpecLoading
+namespace DocFxHelper.Core.Specs
 {
   public interface ISpecLoader
   {

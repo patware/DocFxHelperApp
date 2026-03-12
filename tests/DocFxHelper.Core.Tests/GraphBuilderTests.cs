@@ -27,16 +27,16 @@ namespace DocFxHelper.Core.Tests
         }
       };
 
-      var run = new Run
-      {
-        Id = 1,
-        BuildId = "20250101.1",
-        DocFxEngineVersion = "1.0.0",
-        DocFxHelperEngineVersion = "2.7"
-      };
+      //var run = new RunMeta
+      //{
+      //  Id = 1,
+      //  BuildId = "20250101.1",
+      //  DocFxEngineVersion = "1.0.0",
+      //  DocFxHelperEngineVersion = "2.7"
+      //};
 
       var builder = new GraphBuilder();
-      var graph = builder.Build(sources, master, run);
+      var graph = builder.Build(sources, master);
 
       Assert.NotNull(graph);
     }

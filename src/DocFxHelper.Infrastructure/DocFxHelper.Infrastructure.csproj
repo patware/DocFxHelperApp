@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\DocFxHelper.Core\DocFxHelper.Core.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DocFxHelper.Domain\DocFxHelper.Domain.csproj" />
   </ItemGroup>
 
 </Project>
