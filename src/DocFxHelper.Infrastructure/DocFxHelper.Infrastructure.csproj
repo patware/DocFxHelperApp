@@ -14,4 +14,8 @@
     <ProjectReference Include="..\DocFxHelper.Domain\DocFxHelper.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Time\" />
+  </ItemGroup>
+
 </Project>

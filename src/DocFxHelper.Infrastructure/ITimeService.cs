@@ -1,4 +1,4 @@
-﻿namespace DocFxHelper.Abstractions.Time
+﻿namespace DocFxHelper.Infrastructure
 {
   public interface ITimeService
   {

@@ -1,6 +1,5 @@
-﻿using DocFxHelper.Abstractions.Time;
-
-namespace DocFxHelper.Core.Time
+﻿
+namespace DocFxHelper.Infrastructure
 {
   public sealed class SystemTimeService : ITimeService
   {

@@ -6,6 +6,13 @@ namespace DocFxHelper.Core.Sources
 {
   public interface IIngestion
   {
-    Task IngestAsync(System.IO.DirectoryInfo drop);
+    /// <summary>
+    /// Moves item from the drop folder to the sources folder using the item's ID as the subfolder name.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    Task IngestAsync(string itemPath, string sourcesPath);
+
+    Task<IReadOnlyList<Specs.SourceSpec>> GetSpecsAsync(string sourcesPath, CancellationToken ct = default);
   }
 }

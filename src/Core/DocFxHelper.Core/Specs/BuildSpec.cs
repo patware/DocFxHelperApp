@@ -10,6 +10,10 @@ namespace DocFxHelper.Core.Specs
 
     public required string SourceName { get; set; }
 
+    public required string BranchName { get; set; }
+
+    public required string CommitId{ get; set; }
+
     public required string AuthorName { get; set; }
 
     public required string AuthorEmail { get; set; }

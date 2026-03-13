@@ -5,8 +5,13 @@ namespace DocFxHelper.Core.Specs
   [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
   [JsonDerivedType(typeof(AdoWikiSourceSpec), typeDiscriminator: nameof(SourceType.AdoWiki))]
 
+  ///<summary>
+  /// Abstract class that represents the minimum properties every source shares.
+  ///</summary>
   public abstract class SourceSpec
   {
+    [JsonIgnore]
+    public const string FileName = "Source.Spec.Json";
     /// <summary>
     /// Gets the unique identifier for the source.
     /// </summary>

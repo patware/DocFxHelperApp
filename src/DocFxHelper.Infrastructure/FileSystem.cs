@@ -9,11 +9,11 @@ namespace DocFxHelper.Infrastructure
     public bool DirectoryExists(string path)
         => Directory.Exists(path);
 
-    public IReadOnlyList<string> GetDirectories(string folder)
+    public IReadOnlyList<string> GetDirectories(string path)
     {
-      if (DirectoryExists(folder))
+      if (DirectoryExists(path))
       {
-        return Directory.GetDirectories(folder);
+        return Directory.GetDirectories(path);
       }
 
       return [];
@@ -25,6 +25,19 @@ namespace DocFxHelper.Infrastructure
     public bool FileExists(string path)
         => File.Exists(path);
 
-    
+    public void DeleteDirectory(string path)
+    {
+      System.IO.Directory.Delete(path, recursive: true);
+    }
+
+    public void MoveDirectory(string itemPath, string destinationFolder)
+    {
+      System.IO.Directory.Move(itemPath, destinationFolder);
+    }
+
+    public void CreateDirectory(string path)
+    {
+      System.IO.Directory.CreateDirectory(path);
+    }
   }
 }
