@@ -53,9 +53,10 @@ namespace DocFxHelper.Core.Engine
       if (sourceSpecs.Any())
       {
         _logger.LogInformation("Step 3 - Conversion");
+
         foreach (var source in sourceSpecs)
         {
-          await _conversionService.ConvertAsync(source);
+          await _conversionService.ConvertAsync(buildPaths, source);
         }
 
         _logger.LogInformation("Step 3 - Conversion: Done");
