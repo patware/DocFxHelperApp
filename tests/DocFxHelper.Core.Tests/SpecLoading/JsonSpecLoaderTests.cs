@@ -163,7 +163,17 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(true);
 
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
-        .ReturnsAsync("{\r\n  \"BuildId\" : \"123456\",\r\n  \"AuthorName\" : \"Author Name\",\r\n  \"AuthorEmail\" : \"Author@email.com\",\r\n  \"SourceName\" : \"PipelineX\"\r\n}");
+        .ReturnsAsync("""        
+        {
+          "BuildId" : "123456",
+          "SourceName" : "PipelineX",
+          "BranchName" : "Main",
+          "CommitId" : "1234",
+          "AuthorName" : "Author Name",
+          "AuthorEmail" : "Author@email.com"
+        }        
+        """);
+        
 
       var loader = new JsonSpecLoader(fileSystemMock.Object);
 
@@ -175,9 +185,11 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       Assert.NotNull(buildSpec);
 
       Assert.Equal("123456", buildSpec.BuildId);
+      Assert.Equal("PipelineX", buildSpec.SourceName);
+      Assert.Equal("Main", buildSpec.BranchName);
+      Assert.Equal("1234", buildSpec.CommitId);
       Assert.Equal("Author Name", buildSpec.AuthorName);
       Assert.Equal("Author@email.com", buildSpec.AuthorEmail);
-      Assert.Equal("PipelineX", buildSpec.SourceName);
       
     }
 

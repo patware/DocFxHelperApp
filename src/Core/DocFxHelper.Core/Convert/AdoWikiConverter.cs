@@ -59,6 +59,13 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Step 2 - Snapshot .order files to the corresponding md file guid");
 
+      var dotOrderFiles = _fileSystem.GetFiles(convertedFolder, ".order");
+
+      foreach(var dotOrderFile in dotOrderFiles)
+      {
+        await Snapshot(convertedFolder, wikiBase, dotOrderFile, ct);
+      }
+
       _logger.LogInformation("Step 3 - Prepare Hyperlinks");
 
       _logger.LogInformation("Step 4 - Rename [md Files] to DocFx safe name format");
@@ -80,12 +87,18 @@ namespace DocFxHelper.Core.Convert
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
     }
 
-    private async Task SetInitialYamlHeaders(string rootPath, Uri wikiBase, string mdFile, CancellationToken ct = default)
+    private string GetMdUid(string rootPath, Uri wikiBase, string mdFilePath)
     {
-      var markdown = await _fileSystem.ReadAllTextAsync(mdFile, ct);
+      var relativePath = Path.GetRelativePath(rootPath, mdFilePath);
 
-      var relativePath = Path.GetRelativePath(rootPath, mdFile);
-      var mdUrl = new Uri(wikiBase, relativePath.Replace("\\", "/"));
+      return (new Uri(wikiBase, relativePath.Replace("\\", "/"))).ToString();
+    }
+
+    private async Task SetInitialYamlHeaders(string rootPath, Uri wikiBase, string mdFilePath, CancellationToken ct = default)
+    {
+      var markdown = await _fileSystem.ReadAllTextAsync(mdFilePath, ct);
+
+      var mdUrl = GetMdUid(rootPath, wikiBase, mdFilePath);
 
       var document = Markdown.Parse(markdown, _pipeline);
       var yamlHeader = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
@@ -131,8 +144,29 @@ namespace DocFxHelper.Core.Convert
 
       }
 
-      await _fileSystem.WriteAllTextAsync(mdFile, markdown, ct);
+      await _fileSystem.WriteAllTextAsync(mdFilePath, markdown, ct);
 
     }
+
+    private async Task Snapshot(string convertedFolder, Uri wikiBase, string dotOrderFile, CancellationToken ct)
+    {
+      var snapshot = string.Concat(dotOrderFile, ".snapshot");
+
+      var dotOrderFolder = System.IO.Path.GetDirectoryName(dotOrderFile)!;
+
+      var lines = await _fileSystem.ReadAllLinesAsync(dotOrderFile, ct);
+
+      await using var streamWriter = new StreamWriter(snapshot);
+            
+      foreach(var line in lines.Where(l => !string.IsNullOrWhiteSpace(l)))
+      {
+        var mdFile = Path.Combine(dotOrderFolder, string.Concat(line, ".md"));
+        var mdUrl = GetMdUid(convertedFolder, wikiBase, mdFile);
+
+        await streamWriter.WriteLineAsync(mdUrl);
+      }
+
+    }
+
   }
 }

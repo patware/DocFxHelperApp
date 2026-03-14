@@ -17,6 +17,8 @@ namespace DocFxHelper.Infrastructure
     IReadOnlyList<string> GetFiles(string folder, string? filter);
     bool FileExists(string path);
     Task<string> ReadAllTextAsync(string path, CancellationToken ct = default);
+    Task<string[]> ReadAllLinesAsync(string path, CancellationToken ct = default);
+
     Task WriteAllTextAsync(string path,string content, CancellationToken ct = default);
   }
 }

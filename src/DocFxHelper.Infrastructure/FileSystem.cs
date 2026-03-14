@@ -66,5 +66,8 @@ namespace DocFxHelper.Infrastructure
 
     public async Task WriteAllTextAsync(string path, string content, CancellationToken ct = default)
       => await File.WriteAllTextAsync(path, content, ct);
+
+    public async Task<string[]> ReadAllLinesAsync(string path, CancellationToken ct = default)
+      => await File.ReadAllLinesAsync(path, ct);
   }
 }
