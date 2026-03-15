@@ -67,6 +67,11 @@ namespace DocFxHelper.Core.Convert
       }
 
       _logger.LogInformation("Step 3 - Prepare Hyperlinks");
+      foreach (var mdFile in mdFiles)
+      {
+        await PrepareHyperlinks(convertedFolder, wikiBase, mdFile, ct);
+      }
+
 
       _logger.LogInformation("Step 4 - Rename [md Files] to DocFx safe name format");
 
@@ -85,6 +90,15 @@ namespace DocFxHelper.Core.Convert
       await Task.CompletedTask;
 
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
+    }
+
+    private async Task PrepareHyperlinks(string convertedFolder, Uri wikiBase, string mdFilePath, CancellationToken ct)
+    {
+      var markdown = await _fileSystem.ReadAllTextAsync(mdFilePath, ct);
+
+      markdown = AdoWikiMarkdownFixer.FixAdoWikiEscapes(markdown);
+
+      await _fileSystem.WriteAllTextAsync(mdFilePath, markdown);
     }
 
     private string GetMdUid(string rootPath, Uri wikiBase, string mdFilePath)
