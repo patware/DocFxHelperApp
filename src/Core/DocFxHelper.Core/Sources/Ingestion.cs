@@ -73,29 +73,29 @@ namespace DocFxHelper.Core.Sources
 
     }
 
-    public async Task<IReadOnlyList<Specs.SourceSpec>> GetSpecsAsync(string sourcesPath, CancellationToken ct = default)
-    {
-      var sourceSpecs = new List<Specs.SourceSpec>();
+    //public async Task<IReadOnlyList<Specs.SourceSpec>> GetSpecsAsync(string sourcesPath, CancellationToken ct = default)
+    //{
+    //  var sourceSpecs = new List<Specs.SourceSpec>();
 
-      var subFolders = _fileSystem.GetDirectories(sourcesPath);
+    //  var subFolders = _fileSystem.GetDirectories(sourcesPath);
 
-      foreach(var subFolder in subFolders)
-      {
-        var sourceSpecJson = System.IO.Path.Combine(subFolder, Specs.SourceSpec.FileName);
+    //  foreach(var subFolder in subFolders)
+    //  {
+    //    var sourceSpecJson = System.IO.Path.Combine(subFolder, Specs.SourceSpec.FileName);
 
-        if (_fileSystem.FileExists(sourceSpecJson))
-        {
-          var sourceSpec = await _specLoader.LoadSourceSpecAsync(sourceSpecJson);
+    //    if (_fileSystem.FileExists(sourceSpecJson))
+    //    {
+    //      var sourceSpec = await _specLoader.LoadSourceSpecAsync(sourceSpecJson);
 
-          if (sourceSpec != null)
-          {
-            sourceSpecs.Add(sourceSpec);
-          }
-        }
-      }
+    //      if (sourceSpec != null)
+    //      {
+    //        sourceSpecs.Add(sourceSpec);
+    //      }
+    //    }
+    //  }
 
-      return sourceSpecs;
-    }
+    //  return sourceSpecs;
+    //}
 
   }
 }

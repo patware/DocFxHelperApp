@@ -10,6 +10,5 @@ namespace DocFxHelper.Core.Specs
     Task<MasterSpec> LoadMasterSpecAsync(string path);
     Task<SourceSpec> LoadSourceSpecAsync(string path);
     Task<BuildSpec> LoadBuildSpecAsync(string path);
-    Task<TemplateSpec> LoadTemplateSpecAsync(string path);
   }
 }

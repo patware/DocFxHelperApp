@@ -2,7 +2,7 @@
   "profiles": {
     "DocFxHelper.ConsoleApp": {
       "commandName": "Project",
-      "workingDirectory": "D:\\DocFxHelperSamples\\MasterAndAdoWiki"
+      "workingDirectory": "D:\\DFH\\Simple"
     }
   }
 }

@@ -13,6 +13,6 @@ namespace DocFxHelper.Core.Sources
     /// <returns></returns>
     Task IngestAsync(string itemPath, string sourcesPath);
 
-    Task<IReadOnlyList<Specs.SourceSpec>> GetSpecsAsync(string sourcesPath, CancellationToken ct = default);
+    //Task<IReadOnlyList<Specs.SourceSpec>> GetSpecsAsync(string sourcesPath, CancellationToken ct = default);
   }
 }

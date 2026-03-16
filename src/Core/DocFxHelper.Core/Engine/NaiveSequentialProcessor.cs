@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.Json;
+﻿using DocFxHelper.Core.Graph;
+using DocFxHelper.Core.Utils;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,15 +11,21 @@ namespace DocFxHelper.Core.Engine
   public class NaiveSequentialProcessor(
     ILogger<NaiveSequentialProcessor> logger, 
     Utils.IGeneral general,
-    Drops.IScout scout, 
+    Drops.IScout scout,
     Sources.IIngestion ingestion,
-    Convert.IConversion conversionService) : IProcessor
+    IVerification verification,
+    Graph.IGraphBuilder graphBuilder,
+    Convert.IConversion conversionService,
+    Building.IAssembly assembly) : IProcessor
   {
     private readonly ILogger<NaiveSequentialProcessor> _logger = logger;
     private readonly Utils.IGeneral _general = general;
     private readonly Drops.IScout _scout = scout;
     private readonly Sources.IIngestion _ingestion = ingestion;
+    private readonly IVerification _verification = verification;
+    private readonly IGraphBuilder _graphBuilder = graphBuilder;
     private readonly Convert.IConversion _conversionService = conversionService;
+    private readonly Building.IAssembly _assembly = assembly;
 
 
     public async Task ProcessAsync(Domain.Run run)
@@ -48,13 +56,20 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Step 2 - Ingestion: skipped, nothing to ingest");
       }
 
-      var sourceSpecs = await _ingestion.GetSpecsAsync(buildPaths.Sources);
 
-      if (sourceSpecs.Any())
+      _logger.LogInformation("Step 3 - Conversion");
+
+      var siteGraph = await _graphBuilder.BuildAsync(buildPaths.Sources);
+
+      if (siteGraph.BuildContext == null)
       {
-        _logger.LogInformation("Step 3 - Conversion");
-
-        foreach (var source in sourceSpecs)
+        _logger.LogInformation("Step 3 - Build context is null, exiting");
+        return;
+      }
+  
+      if (siteGraph.BuildContext.Sources.Any())
+      {
+        foreach (var source in siteGraph.BuildContext.Sources.Values)
         {
           await _conversionService.ConvertAsync(buildPaths, source);
         }
@@ -67,11 +82,29 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Step 3 - Conversion: skipped, no sources in _sources folder");
       }
 
-      _logger.LogInformation("Step 4 - Assembly (not implemented yet)");
+      _logger.LogInformation("Step 4 - PreAssembly verification");
+      _logger.LogInformation("Step 4 - PreAssembly verification - Orphan folders");
+      var orphans = _verification.GetOrphanFolders(buildPaths, siteGraph.BuildContext);
 
-      _logger.LogInformation("Step 5 - Compilation (not implemented yet)");
+      if (orphans.Any())
+      {
+        _logger.LogInformation("Number of orphan folders: {count}", orphans.Count);
+        foreach (var orphan in orphans)
+        {
+          _general.MoveToOrphanFolder(orphan, buildPaths);
+        }
+      }
+      else
+      {
+        _logger.LogInformation("No orphan folder");
+      }
 
-      _logger.LogInformation("Step 6 - Publication (not implemented yet)");
+      _logger.LogInformation("Step 5 - Assembly");
+      await _assembly.Assemble(buildPaths);
+
+      _logger.LogInformation("Step 6 - Compilation (not implemented yet)");
+
+      _logger.LogInformation("Step 7 - Publication (not implemented yet)");
 
       _logger.LogInformation("Completed processing run {RunId}", run.Id);
     }

@@ -1,5 +1,6 @@
 ﻿using DocFxHelper.Core.Specs;
 using DocFxHelper.Infrastructure;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,11 +11,13 @@ namespace DocFxHelper.Core.Specs
 {
   public class JsonSpecLoader : ISpecLoader
   {
+    private readonly ILogger<JsonSpecLoader> _logger;
     private readonly IFileSystem _fileSystem;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-    public JsonSpecLoader(IFileSystem fileSystem)
+    public JsonSpecLoader(ILogger<JsonSpecLoader> logger, IFileSystem fileSystem)
     {
+      _logger = logger;
       _fileSystem = fileSystem;
 
       _jsonSerializerOptions = new JsonSerializerOptions
@@ -27,6 +30,7 @@ namespace DocFxHelper.Core.Specs
     {
       if (_fileSystem.FileExists(path))
       {
+        _logger.LogInformation("Loading MasterSpec from [{path}]", path);
         var json = await _fileSystem.ReadAllTextAsync(path);
 
         var masterSpec = System.Text.Json.JsonSerializer.Deserialize<MasterSpec>(json, _jsonSerializerOptions);
@@ -45,6 +49,7 @@ namespace DocFxHelper.Core.Specs
     {
       if (_fileSystem.FileExists(path))
       {
+        _logger.LogInformation("Loading SourceSpec from [{path}]", path);
         var json = await _fileSystem.ReadAllTextAsync(path);
 
         var sourceSpec = System.Text.Json.JsonSerializer.Deserialize<SourceSpec>(json, _jsonSerializerOptions);
@@ -61,6 +66,7 @@ namespace DocFxHelper.Core.Specs
     {
       if (_fileSystem.FileExists(path))
       {
+        _logger.LogInformation("Loading BuildSpec from [{path}]", path);
         var json = await _fileSystem.ReadAllTextAsync(path);
 
         var buildSpec = System.Text.Json.JsonSerializer.Deserialize<BuildSpec>(json, _jsonSerializerOptions);
@@ -72,23 +78,6 @@ namespace DocFxHelper.Core.Specs
         throw new System.IO.FileNotFoundException($"BuildSpec file not found at path: {path}");
       }
     }
-
-    public async Task<TemplateSpec> LoadTemplateSpecAsync(string path)
-    {
-      if (_fileSystem.FileExists(path))
-      {
-        var json = await _fileSystem.ReadAllTextAsync(path);
-
-        var templateSpec = System.Text.Json.JsonSerializer.Deserialize<TemplateSpec>(json, _jsonSerializerOptions);
-
-        return templateSpec ?? throw new InvalidOperationException($"Failed to deserialize TemplateSpec from {path}");
-      }
-      else
-      {
-        throw new System.IO.FileNotFoundException($"TemplateSpec file not found at path: {path}");
-      }
-    }
-
 
   }
 }

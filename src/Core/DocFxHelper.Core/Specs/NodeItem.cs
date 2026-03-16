@@ -18,14 +18,20 @@ namespace DocFxHelper.Core.Specs
     /// URI of the node.  Can be relative path, absolute path, or any string that can uniquely identify the node in the context of the source.
     /// </summary>
     /// <remarks>The Node property is required and must be provided during initialization.</remarks>
-    [System.Text.Json.Serialization.JsonPropertyName("src")]
-    public required string Resource { get; init; }
+    [System.Text.Json.Serialization.JsonPropertyName("id")]
+    public required string ResourceId { get; init; }
 
     /// <summary>
-    /// Gets the relative path of the source, relative to the parent's root.
+    /// The relative path of the source, relative to the parent's root.
     /// </summary>
-    /// <remarks>The relative path should be specified in a format compatible with the target environment.
-    /// Ensure that the path is correctly formatted to avoid runtime errors.</remarks>
+    /// <remarks>The relative path is optional, and should be specified in a format compatible with the target environment.
+    /// Ensure that the path is correctly formatted to avoid runtime errors.
+    /// <para>
+    /// For the root node, the value will be disregarded.
+    /// </para>
+    /// <para>The / prefix/suffix will be stripped, so /A/B/ will be equivalent to A/B.</para>
+    /// </remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("targetRelativePath")]
     public string TargetRelativePath { get; init; } = string.Empty;
 
     /// <summary>
@@ -34,6 +40,8 @@ namespace DocFxHelper.Core.Specs
     /// <remarks>The returned collection is read-only and will be empty if no child items are present.
     /// Modifications to the collection must be performed through the containing object, not directly on this
     /// property.</remarks>
+
+    [System.Text.Json.Serialization.JsonPropertyName("children")]
     public IReadOnlyCollection<NodeItem> Children { get; init; }
         = [];
   }

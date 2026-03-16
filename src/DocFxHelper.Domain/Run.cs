@@ -9,7 +9,6 @@
 
     public required RunTrigger Trigger { get; set; }
 
-
   }
 
   

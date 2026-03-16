@@ -29,6 +29,13 @@ namespace DocFxHelper.Core.Utils
         _fileSystem.CreateDirectory(buildPaths.Sources);
       }
 
+
+      if (!_fileSystem.DirectoryExists(buildPaths.Orphans))
+      {
+        _logger.LogInformation("  Orphans folder not found, creating [{folder}]", buildPaths.Orphans);
+        _fileSystem.CreateDirectory(buildPaths.Orphans);
+      }
+
       if (!_fileSystem.DirectoryExists(buildPaths.Converted))
       {
         _logger.LogInformation("  Converted folder not found, creating [{folder}]", buildPaths.Converted);
@@ -46,6 +53,16 @@ namespace DocFxHelper.Core.Utils
         _logger.LogInformation("  Site folder folder not found, creating [{folder}]", buildPaths.Site);
         _fileSystem.CreateDirectory(buildPaths.Site);
       }
+    }
+
+    public void MoveToOrphanFolder(string folderPath, BuildPaths buildPaths)
+    {
+
+      var di = new DirectoryInfo(folderPath);
+      var orphanFolder = System.IO.Path.Combine(buildPaths.Orphans, string.Concat(di.Name, "_", DateTime.Now.ToString("yyyymmdd_hhMMss")));
+
+      _logger.LogInformation("Moving [{from}] to [{to}]", System.IO.Path.GetRelativePath(buildPaths.WorkingDirectory, folderPath), System.IO.Path.GetRelativePath(buildPaths.WorkingDirectory, orphanFolder));
+      _fileSystem.MoveDirectory(folderPath, orphanFolder);
     }
   }
 }

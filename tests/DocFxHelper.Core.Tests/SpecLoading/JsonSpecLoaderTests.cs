@@ -1,5 +1,6 @@
 ﻿using DocFxHelper.Core.Specs;
 using DocFxHelper.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(true);
 
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
-        .ReturnsAsync("{\r\n  \"Root\": {\r\n    \"src\": \"../SimpleDocSiteWiki\"\r\n  }\r\n}\r\n");
+        .ReturnsAsync("{\r\n  \"Root\": {\r\n    \"id\": \"SimpleWiki\"\r\n  }\r\n}\r\n");
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
            
 
       // Act
@@ -31,7 +32,9 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       // Assert
       Assert.NotNull(masterSpec);
 
-      Assert.Equal("../SimpleDocSiteWiki", masterSpec.Root.Resource);
+      Assert.NotNull(masterSpec.Root);
+
+      Assert.Equal("SimpleWiki", masterSpec.Root!.ResourceId);
     }
 
 
@@ -48,7 +51,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
         .ReturnsAsync("null");
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
@@ -66,7 +69,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(false);
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
@@ -91,7 +94,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
         .ReturnsAsync("{\r\n  \"type\" : \"AdoWiki\",\r\n\"Id\" : \"SimpleWiki\",\r\n  \"DisplayName\" : \"Simple\",\r\n  \"WikiUrl\" : \"https://dev.azure.com/org/project/_wiki/wikis/wiki-name\"\r\n}");
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
 
       // Act
@@ -123,7 +126,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
         .ReturnsAsync("null");
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
@@ -141,7 +144,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(false);
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
@@ -175,7 +178,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
         """);
         
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
 
       // Act
@@ -207,7 +210,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
       fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
         .ReturnsAsync("null");
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
@@ -225,87 +228,13 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(false);
 
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
+      var loader = new JsonSpecLoader(new NullLogger<JsonSpecLoader>(), fileSystemMock.Object);
 
       // Act
 
       await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadBuildSpecAsync(path));
 
     }
-
-
-
-
-
-
-
-    [Fact]
-    public async Task LoadTemplateSpecAsync_ValidPath_ReturnsTemplateSpec()
-    {
-      // Arrange
-      var path = "path/to/valid/template.spec.json";
-
-      var fileSystemMock = new Mock<IFileSystem>();
-
-      fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(true);
-
-      fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
-        .ReturnsAsync("{\r\n  \"TemplateFile\" : \"me.mustache\",\r\n  \"OutputFile\" : \"Foo/me.md\"\r\n}");
-
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
-
-
-      // Act
-      var templateSpec = await loader.LoadTemplateSpecAsync(path);
-
-      // Assert
-      Assert.NotNull(templateSpec);
-
-      Assert.Equal("me.mustache", templateSpec.TemplateFile);
-      Assert.Equal("Foo/me.md", templateSpec.OutputFile);
-
-    }
-
-
-    [Fact]
-    public async Task LoadTemplateSpecAsync_ValidPath_ButInvalidJson_ThrowsException()
-    {
-      // Arrange
-      var path = "path/to/valid/template.spec.json";
-
-      var fileSystemMock = new Mock<IFileSystem>();
-
-      fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(true);
-
-      fileSystemMock.Setup(fs => fs.ReadAllTextAsync(path, It.IsAny<CancellationToken>()))
-        .ReturnsAsync("null");
-
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
-
-      // Act
-
-      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadTemplateSpecAsync(path));
-
-    }
-
-    [Fact]
-    public async Task LoadTemplateSpecAsync_InvalidPath_ThrowsException()
-    {
-      // Arrange
-      var path = "path/to/valid/template.spec.json";
-
-      var fileSystemMock = new Mock<IFileSystem>();
-
-      fileSystemMock.Setup(fs => fs.FileExists(path)).Returns(false);
-
-      var loader = new JsonSpecLoader(fileSystemMock.Object);
-
-      // Act
-
-      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadTemplateSpecAsync(path));
-
-    }
-
 
   }
 }

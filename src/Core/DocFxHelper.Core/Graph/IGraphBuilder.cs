@@ -2,11 +2,8 @@
 
 namespace DocFxHelper.Core.Graph
 {
-  internal interface IGraphBuilder
+  public interface IGraphBuilder
   {
-    SiteGraph Build(
-      IReadOnlyList<SourceSpec> sources,
-      Specs.MasterSpec master
-      );
+    Task<SiteGraph> BuildAsync(string path);
   }
 }

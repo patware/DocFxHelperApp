@@ -16,7 +16,7 @@
     /// </summary>
     /// <remarks>This property must be initialized before use. It represents the primary source item that
     /// serves as the starting point for operations within the context.</remarks>
-    public required NodeItem Root { get; set; }
+    public NodeItem? Root { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the DocFX JSON configuration file used for documentation generation.
