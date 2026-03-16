@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "DocFxHelper.ConsoleApp": {
+      "commandName": "Project"
+    }
+  }
+}

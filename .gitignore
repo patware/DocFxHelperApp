@@ -417,4 +417,4 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /.dotnet/.dotnet
-/src/DocFxHelper.ConsoleApp/Properties/launchSettings.json
+
