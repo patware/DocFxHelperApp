@@ -12,6 +12,7 @@
     /// <summary>
     /// Path to the mustache template file, relative to the current spec file. The template file should be a valid mustache template that can be processed by DocFxHelper to generate the desired output.
     /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("templateFile")]
     public required string TemplateFile { get; init; }
 
     /// <summary>
@@ -20,6 +21,7 @@
     /// </summary>
     /// <remarks>This property must be initialized with a valid, writable file path before use. The specified
     /// path should be accessible to ensure successful file generation.</remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("outputFile")]
     public required string OutputFile { get; init; }
 
     /// <summary>
@@ -27,6 +29,7 @@
     /// </summary>
     /// <remarks>If the value is null, no specific condition is applied to the template. Use this property to
     /// control template behavior based on dynamic criteria.</remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("requiredTags")]
     public string[]? RequiredTags { get; init; }
   }
 

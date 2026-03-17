@@ -34,12 +34,14 @@ namespace DocFxHelper.Infrastructure
 
     public void CopyDirectory(string source, string destination)
     {
+      Directory.CreateDirectory(destination);
+
       foreach (var dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
       {
         Directory.CreateDirectory(dirPath.Replace(source, destination));
       }
 
-      foreach (var filePath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
+      foreach (var filePath in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
       {
         File.Copy(filePath, filePath.Replace(source, destination), true);
       }

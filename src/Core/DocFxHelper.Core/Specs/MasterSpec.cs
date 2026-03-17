@@ -16,6 +16,7 @@
     /// </summary>
     /// <remarks>This property must be initialized before use. It represents the primary source item that
     /// serves as the starting point for operations within the context.</remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("root")]
     public NodeItem? Root { get; set; }
 
     /// <summary>
@@ -26,6 +27,7 @@
     /// Provide your own docfx.json if you want to customize the docfx build, for example, by providing custom templates or global metadata.
     /// The final docfx.json used for the docfx build will be a merged result of the provided docfx.json and a default empty docfx.json, with the provided one taking precedence in case of conflicts.
     /// </remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("docFxJsonPath")]
     public string? DocFxJsonPath { get; set; }
 
     /// <summary>
@@ -33,6 +35,7 @@
     /// </summary>
     /// <remarks>This property provides read-only access to the templates, which can be used to create
     /// instances based on the specified template specifications.</remarks>
+    [System.Text.Json.Serialization.JsonPropertyName("templates")]
     public IReadOnlyCollection<TemplateSpec> Templates { get; init; } = [];
   }
 

@@ -12,6 +12,11 @@ builder.Configuration
   .SetBasePath(AppContext.BaseDirectory)
   .AddJsonFile("appsettings.json", optional:false);
 
+var config = new DocFxHelper.ConsoleApp.Configuration();
+builder.Configuration.GetSection(DocFxHelper.ConsoleApp.Configuration.SectionName).Bind(config);
+
+SetWorkingDirectory(config.WorkingDirectory);
+
 // Configure Serilog from appsettings.json
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -51,3 +56,21 @@ await app.RunAsync();
 Log.Information("Application is shutting down...");
 
 await Log.CloseAndFlushAsync();
+
+
+void SetWorkingDirectory(string configuredPath)
+{
+  if (string.IsNullOrWhiteSpace(configuredPath) || configuredPath == ".")
+    return;
+
+  // Resolve relative paths to absolute paths
+  var fullPath = Path.GetFullPath(configuredPath);
+
+  if (!Directory.Exists(fullPath))
+  {
+    throw new DirectoryNotFoundException(
+        $"Configured working directory does not exist: {fullPath}");
+  }
+
+  Directory.SetCurrentDirectory(fullPath);
+}

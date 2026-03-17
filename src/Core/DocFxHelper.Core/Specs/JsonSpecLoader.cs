@@ -22,6 +22,7 @@ namespace DocFxHelper.Core.Specs
 
       _jsonSerializerOptions = new JsonSerializerOptions
       {
+        PropertyNameCaseInsensitive = true,
         Converters = { new JsonStringEnumConverter() }
       };
     }
