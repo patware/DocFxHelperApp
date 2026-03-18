@@ -18,7 +18,7 @@ namespace DocFxHelper.Core.Graph
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly ISpecLoader _specLoader = specLoader;
 
-    public async Task<SiteGraph> BuildAsync(string path)
+    public async Task<SiteGraph> BuildAsync(string path, CancellationToken ct = default!)
     {
       _logger.LogInformation("Building Graph from {path}", path);
 
@@ -57,7 +57,7 @@ namespace DocFxHelper.Core.Graph
     /// </summary>
     /// <param name="buildContext"></param>
     /// <returns></returns>
-    private async Task<(SiteNode?, IReadOnlyDictionary<string, SiteNode>)> GetNodesFromBuildContextAsync(GraphBuildContext buildContext)
+    private static async Task<(SiteNode?, IReadOnlyDictionary<string, SiteNode>)> GetNodesFromBuildContextAsync(GraphBuildContext buildContext)
     {
 
       var dic = new Dictionary<string, SiteNode>();
@@ -102,7 +102,7 @@ namespace DocFxHelper.Core.Graph
       return (rootNode, dic);
     }
 
-    private System.Collections.Generic.Stack<NodeItem> GetNodeItemStack(GraphBuildContext buildContext)
+    private static System.Collections.Generic.Stack<NodeItem> GetNodeItemStack(GraphBuildContext buildContext)
     {
       var stack = new System.Collections.Generic.Stack<NodeItem>();
       var queue = new System.Collections.Generic.Queue<NodeItem>();

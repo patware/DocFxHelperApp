@@ -23,5 +23,8 @@
       Site = System.IO.Path.Combine(workingDirectory, Default.Site)
     };
 
+    public string SourceInSources(string id) => System.IO.Path.Combine(Sources, id);
+    public string SourceInConverted(string id) => System.IO.Path.Combine(Converted, id);
+    public string SourceInStaging(string id) => System.IO.Path.Combine(Staging, id);
   }
 }

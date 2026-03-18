@@ -28,7 +28,7 @@ namespace DocFxHelper.Core.Engine
     private readonly Building.IAssembly _assembly = assembly;
 
 
-    public async Task ProcessAsync(Domain.Run run)
+    public async Task ProcessAsync(Domain.Run run, CancellationToken ct = default!)
     {
 
       _logger.LogInformation("Run {RunId} trigger by {TriggerSource} {TriggerAuthor} in working directory {WorkingDirectory}",
@@ -47,7 +47,7 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Step 2 - Ingestion");
         foreach (var item in readyDrops.OrderBy(s => s.LastWriteTimeUtc))
         {
-          await _ingestion.IngestAsync(item.FullName, buildPaths.Sources);
+          await _ingestion.IngestAsync(item.FullName, buildPaths.Sources, ct);
         }
         _logger.LogInformation("Step 2 - Ingestion: Done");
       }
@@ -59,7 +59,7 @@ namespace DocFxHelper.Core.Engine
 
       _logger.LogInformation("Step 3 - Conversion");
 
-      var siteGraph = await _graphBuilder.BuildAsync(buildPaths.Sources);
+      var siteGraph = await _graphBuilder.BuildAsync(buildPaths.Sources, ct);
 
       if (siteGraph.BuildContext == null)
       {
@@ -71,7 +71,7 @@ namespace DocFxHelper.Core.Engine
       {
         foreach (var source in siteGraph.BuildContext.Sources.Values)
         {
-          await _conversionService.ConvertAsync(buildPaths, source);
+          await _conversionService.ConvertAsync(buildPaths, source, ct);
         }
 
         _logger.LogInformation("Step 3 - Conversion: Done");
@@ -100,7 +100,7 @@ namespace DocFxHelper.Core.Engine
       }
 
       _logger.LogInformation("Step 5 - Assembly");
-      await _assembly.Assemble(buildPaths);
+      await _assembly.Assemble(buildPaths, siteGraph, ct);
 
       _logger.LogInformation("Step 6 - Compilation (not implemented yet)");
 

@@ -4,6 +4,6 @@ namespace DocFxHelper.Core.Graph
 {
   public interface IGraphBuilder
   {
-    Task<SiteGraph> BuildAsync(string path);
+    Task<SiteGraph> BuildAsync(string path, CancellationToken ct = default!);
   }
 }

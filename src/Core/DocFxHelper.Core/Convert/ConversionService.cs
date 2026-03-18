@@ -20,14 +20,14 @@ namespace DocFxHelper.Core.Convert
 
     }
 
-    public async Task ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SourceSpec sourceSpec)
+    public async Task ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SourceSpec sourceSpec, CancellationToken ct = default!)
     {
       _logger.LogInformation("Checking if {id} needs conversion...", sourceSpec.Id);
 
       if (_converters.TryGetValue(sourceSpec.GetType(), out var converter))
       {
         _logger.LogInformation("...{id} needs conversion", sourceSpec.Id);
-        await converter.ConvertAsync(buildPaths, sourceSpec);
+        await converter.ConvertAsync(buildPaths, sourceSpec, ct);
       }
       else
       {

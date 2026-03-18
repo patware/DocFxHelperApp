@@ -46,7 +46,7 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Step 1 - Set Initial Yaml Headers");
 
-      var wikiBase = new Uri(sourceSpec.WikiUrl, UriKind.Absolute);
+      var wikiBase = new Uri(EnsureTrailingSlash(sourceSpec.WikiUrl), UriKind.Absolute);
       _logger.LogInformation("Wiki base is {wikiBase}", wikiBase);
 
       var mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md");
@@ -99,6 +99,11 @@ namespace DocFxHelper.Core.Convert
       markdown = AdoWikiMarkdownFixer.FixAdoWikiEscapes(markdown);
 
       await _fileSystem.WriteAllTextAsync(mdFilePath, markdown);
+    }
+
+    private static string EnsureTrailingSlash(string url)
+    {
+      return url.EndsWith("/", StringComparison.Ordinal) ? url : string.Concat(url, "/");
     }
 
     private string GetMdUid(string rootPath, Uri wikiBase, string mdFilePath)

@@ -27,7 +27,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
            
 
       // Act
-      var masterSpec = await loader.LoadMasterSpecAsync(path);
+      var masterSpec = await loader.LoadMasterSpecAsync(path, TestContext.Current.CancellationToken);
 
       // Assert
       Assert.NotNull(masterSpec);
@@ -55,7 +55,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadMasterSpecAsync(path));
+      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadMasterSpecAsync(path, TestContext.Current.CancellationToken));
       
     }
 
@@ -73,7 +73,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadMasterSpecAsync(path));
+      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadMasterSpecAsync(path, TestContext.Current.CancellationToken));
 
     }
 
@@ -98,7 +98,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
 
       // Act
-      var sourceSpec = await loader.LoadSourceSpecAsync(path);
+      var sourceSpec = await loader.LoadSourceSpecAsync(path,TestContext.Current.CancellationToken);
 
       // Assert
       Assert.NotNull(sourceSpec);
@@ -130,7 +130,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadSourceSpecAsync(path));
+      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadSourceSpecAsync(path, TestContext.Current.CancellationToken));
 
     }
 
@@ -148,7 +148,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadSourceSpecAsync(path));
+      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadSourceSpecAsync(path, TestContext.Current.CancellationToken));
 
     }
 
@@ -182,7 +182,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
 
       // Act
-      var buildSpec = await loader.LoadBuildSpecAsync(path);
+      var buildSpec = await loader.LoadBuildSpecAsync(path, TestContext.Current.CancellationToken);
 
       // Assert
       Assert.NotNull(buildSpec);
@@ -214,7 +214,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadBuildSpecAsync(path));
+      await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadBuildSpecAsync(path, TestContext.Current.CancellationToken));
 
     }
 
@@ -232,7 +232,7 @@ namespace DocFxHelper.Core.Tests.SpecLoading
 
       // Act
 
-      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadBuildSpecAsync(path));
+      await Assert.ThrowsAsync<FileNotFoundException>(() => loader.LoadBuildSpecAsync(path, TestContext.Current.CancellationToken));
 
     }
 

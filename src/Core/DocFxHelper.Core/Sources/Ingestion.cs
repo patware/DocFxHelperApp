@@ -17,7 +17,7 @@ namespace DocFxHelper.Core.Sources
     private readonly Infrastructure.IFileSystem _fileSystem = fileSystem;
     private readonly ISpecLoader _specLoader = specLoader;
 
-    public async Task IngestAsync(string itemPath, string sourcesPath)
+    public async Task IngestAsync(string itemPath, string sourcesPath, CancellationToken ct = default!)
     {
       _logger.LogInformation("Ingesting dropped {itemPath}", itemPath);
 
@@ -38,7 +38,7 @@ namespace DocFxHelper.Core.Sources
         {
           _logger.LogInformation("subfolder contains [source.spec.json], loading it to get the id");
 
-          var sourceSpec = await _specLoader.LoadSourceSpecAsync(sourceSpecJson);
+          var sourceSpec = await _specLoader.LoadSourceSpecAsync(sourceSpecJson, ct);
 
           if (sourceSpec != null)
           {

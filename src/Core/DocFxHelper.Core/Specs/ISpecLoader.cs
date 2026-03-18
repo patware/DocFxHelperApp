@@ -7,8 +7,8 @@ namespace DocFxHelper.Core.Specs
 {
   public interface ISpecLoader
   {
-    Task<MasterSpec> LoadMasterSpecAsync(string path);
-    Task<SourceSpec> LoadSourceSpecAsync(string path);
-    Task<BuildSpec> LoadBuildSpecAsync(string path);
+    Task<MasterSpec> LoadMasterSpecAsync(string path, CancellationToken ct = default!);
+    Task<SourceSpec> LoadSourceSpecAsync(string path, CancellationToken ct = default!);
+    Task<BuildSpec> LoadBuildSpecAsync(string path, CancellationToken ct = default!);
   }
 }
