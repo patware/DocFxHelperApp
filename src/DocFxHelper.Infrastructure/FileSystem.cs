@@ -9,11 +9,13 @@ namespace DocFxHelper.Infrastructure
     public bool DirectoryExists(string path)
         => Directory.Exists(path);
 
-    public IReadOnlyList<string> GetDirectories(string path)
+    public IReadOnlyList<string> GetDirectories(string path, bool recurse)
     {
+      SearchOption searchOption =  recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
       if (DirectoryExists(path))
       {
-        return Directory.GetDirectories(path);
+        return Directory.GetDirectories(path, "*", searchOption);
       }
 
       return [];
@@ -50,17 +52,31 @@ namespace DocFxHelper.Infrastructure
     }
 
     public void CreateDirectory(string path)
-    {
-      System.IO.Directory.CreateDirectory(path);
-    }
+      => Directory.CreateDirectory(path);
+    
+
+    public bool FolderExists(string folder)
+      => Directory.Exists(folder);
+
 
     public bool FileExists(string path)
         => File.Exists(path);
 
 
-    public IReadOnlyList<string> GetFiles(string folder, string? filter)
+    public IReadOnlyList<string> GetFiles(string folder, string? filter, bool recurse)
     {
-      return System.IO.Directory.GetFiles(folder, filter ?? "*", SearchOption.AllDirectories);
+      SearchOption options;
+
+      if (recurse)
+      {
+        options = SearchOption.AllDirectories;
+      }
+      else
+      {
+        options = SearchOption.TopDirectoryOnly;
+      }
+
+      return System.IO.Directory.GetFiles(folder, filter ?? "*", options);
     }
 
     public async Task<string> ReadAllTextAsync(string path, CancellationToken ct = default)
@@ -71,5 +87,15 @@ namespace DocFxHelper.Infrastructure
 
     public async Task<string[]> ReadAllLinesAsync(string path, CancellationToken ct = default)
       => await File.ReadAllLinesAsync(path, ct);
+
+    public void RenameFile(string mdFile, string safeFilename)
+    {
+      var newPath = Path.Combine(Path.GetDirectoryName(mdFile)!, safeFilename);
+
+      File.Move(mdFile, newPath);
+      
+    }
+
+    
   }
 }

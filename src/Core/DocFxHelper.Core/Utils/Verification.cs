@@ -23,9 +23,9 @@ namespace DocFxHelper.Core.Utils
 
       var foldersToCleanup = new List<string>();
 
-      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Sources));
-      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Converted));
-      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Staging));
+      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Sources, false));
+      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Converted, false));
+      foldersToCleanup.AddRange(_fileSystem.GetDirectories(buildPaths.Staging, false));
 
       foreach (var sourceFolder in foldersToCleanup)
       {

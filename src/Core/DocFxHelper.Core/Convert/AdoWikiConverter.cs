@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using System.Xml.Linq;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NodeDeserializers;
@@ -25,6 +26,8 @@ namespace DocFxHelper.Core.Convert
       .Build();
 
     private readonly IDeserializer _deserializer = new DeserializerBuilder().Build();
+
+    private readonly Uri _baseUri = new("https://localhost/");
 
     public override async Task Convert(Abstractions.Engine.BuildPaths buildPaths, AdoWikiSourceSpec sourceSpec, CancellationToken ct = default)
     {
@@ -49,7 +52,7 @@ namespace DocFxHelper.Core.Convert
       var wikiBase = new Uri(EnsureTrailingSlash(sourceSpec.WikiUrl), UriKind.Absolute);
       _logger.LogInformation("Wiki base is {wikiBase}", wikiBase);
 
-      var mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md");
+      var mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
 
       foreach (var mdFile in mdFiles)
       {
@@ -59,7 +62,7 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Step 2 - Snapshot .order files to the corresponding md file guid");
 
-      var dotOrderFiles = _fileSystem.GetFiles(convertedFolder, ".order");
+      var dotOrderFiles = _fileSystem.GetFiles(convertedFolder, ".order", true);
 
       foreach(var dotOrderFile in dotOrderFiles)
       {
@@ -74,6 +77,10 @@ namespace DocFxHelper.Core.Convert
 
 
       _logger.LogInformation("Step 4 - Rename [md Files] to DocFx safe name format");
+      foreach (var mdFile in mdFiles)
+      {
+        await RenameMdFilesToDocFxSafeFormat(convertedFolder, wikiBase, mdFile, ct);
+      }
 
       _logger.LogInformation("Step 5 - Rename [Folders] to DocFx safe name format");
 
@@ -87,9 +94,123 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Step 10 - Convert .order to toc.yml");
 
+      var folders = _fileSystem.GetDirectories(convertedFolder, true);
+      foreach(var folder in folders)
+      {
+        if (!System.IO.Path.GetFileName(folder).StartsWith('.'))
+        {
+          await EnsureDotOrderExistsAsync(folder, ct);
+
+        }
+      }
+
+      var dotOrders = _fileSystem.GetFiles(convertedFolder, ".order", true);
+
+      foreach(var dotOrder in dotOrders)
+      {
+        await ConvertOrderToToc(dotOrder);
+      }
+
       await Task.CompletedTask;
 
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
+    }
+
+    private async Task EnsureDotOrderExistsAsync(string folder, CancellationToken ct = default!)
+    {
+      var dotOrder = System.IO.Path.Combine(folder, ".order");
+
+      if (!(_fileSystem.FileExists(dotOrder)))
+      {
+        
+        var mdFiles = _fileSystem.GetFiles(folder, "*.md", false);
+
+        if (mdFiles.Any())
+        {
+          _logger.LogInformation("{dotOrder} does not exist, creating one from mdFiles list {count}", dotOrder, mdFiles.Count);
+          var sb = new StringBuilder();
+
+          foreach (var mdFile in mdFiles)
+          {
+            sb.AppendLine(System.IO.Path.GetFileNameWithoutExtension(mdFile));
+          }
+
+          await _fileSystem.WriteAllTextAsync(dotOrder, sb.ToString(), ct);
+        }
+      }
+
+    }
+
+    private async Task ConvertOrderToToc(string dotOrder)
+    {
+      string directory = Path.GetDirectoryName(dotOrder)!;
+
+      var lines = await _fileSystem.ReadAllLinesAsync(dotOrder);
+
+      var sb = new StringBuilder();
+
+      sb.AppendLine("items:");
+
+      foreach(var line in lines)
+      {
+        if (line != "Index")
+        {
+          var lineFileMd = System.IO.Path.Combine(directory, string.Concat(line, ".md"));
+          var lineFolder = System.IO.Path.Combine(directory, line);
+
+          var lineFileMdExists = _fileSystem.FileExists(lineFileMd);
+          var lineFolderExists = _fileSystem.FolderExists(lineFolder);
+
+
+          sb.AppendLine($"- name: {line}");
+
+          if (lineFileMdExists && lineFolderExists)
+          {
+            sb.AppendLine($"  href: {line}/toc.yml");
+            sb.AppendLine($"  homepage: {line}.md");
+          }
+          else if(lineFileMdExists)
+          {
+            sb.AppendLine($"  href: {line}.md");
+          }
+          else if (lineFolderExists)
+          {
+            sb.AppendLine($"  href: {line}/toc.yml");
+          }
+          else
+          {
+            _logger.LogWarning("Edge case, neither {line} .md or folder name exists -> renamed ?", line);
+          }
+          
+        }
+      }
+           
+      var tocYml = Path.Combine(directory!, "toc.yml");
+
+      _logger.LogInformation("{dotOrder} => toc.yml", dotOrder);
+      await _fileSystem.WriteAllTextAsync(tocYml!, sb.ToString());
+    }
+
+    private async Task RenameMdFilesToDocFxSafeFormat(string convertedFolder, Uri wikiBase, string mdFile, CancellationToken ct)
+    {
+      var mdFilename = Path.GetFileName(mdFile);
+
+      var mdFilenameDecoded = System.Web.HttpUtility.UrlDecode(mdFilename);
+
+      if (mdFilenameDecoded != mdFilename)
+      {
+        string safeFilename = GetSafeFilename(mdFilename);
+        _logger.LogInformation("md file [{mdFilename}] needs to be renamed to DocFx file name safe format [{}]", mdFilename, safeFilename);
+
+        _fileSystem.RenameFile(mdFile, safeFilename);
+      }
+    }
+
+    private static string GetSafeFilename(string mdFilename)
+    {
+      var safeFilenameReplaceKnownEscapes = mdFilename.Replace("\\(", "(").Replace("\\)", ")").Replace("-", " ");
+      var safeFilename = System.Web.HttpUtility.UrlDecode(safeFilenameReplaceKnownEscapes);
+      return safeFilename;
     }
 
     private async Task PrepareHyperlinks(string convertedFolder, Uri wikiBase, string mdFilePath, CancellationToken ct)

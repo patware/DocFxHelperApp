@@ -18,7 +18,7 @@ namespace DocFxHelper.Core.Drops
 
       var readySources = new List<System.IO.DirectoryInfo>();
 
-      foreach (var subFolder in _fileSystem.GetDirectories(drop))
+      foreach (var subFolder in _fileSystem.GetDirectories(drop, false))
       {
         var sourceSpecJson = System.IO.Path.Combine(subFolder, "source.spec.json");
         var masterSpecJson = System.IO.Path.Combine(subFolder, "master.spec.json");

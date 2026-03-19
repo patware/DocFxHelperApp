@@ -131,7 +131,7 @@ namespace DocFxHelper.Core.Graph
     private async Task<GraphBuildContext> GetBuildContextAsync(string path)
     {
       _logger.LogInformation("Fetching list of sub folders");
-      var sourceSubFolders = _fileSystem.GetDirectories(path);
+      var sourceSubFolders = _fileSystem.GetDirectories(path, false);
 
 
       (string? masterDirectory, MasterSpec? master) = await GetMasterSpecFromSubFoldersAsync(sourceSubFolders);

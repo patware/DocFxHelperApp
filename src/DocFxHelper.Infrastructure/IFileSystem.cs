@@ -6,7 +6,7 @@ namespace DocFxHelper.Infrastructure
 {
   public interface IFileSystem
   {
-    IReadOnlyList<string> GetDirectories(string path);
+    IReadOnlyList<string> GetDirectories(string path, bool recurse);
 
     bool DirectoryExists(string path);
     void CreateDirectory(string path);
@@ -14,11 +14,13 @@ namespace DocFxHelper.Infrastructure
     void MoveDirectory(string source, string destination);
     void CopyDirectory(string source, string destination);
 
-    IReadOnlyList<string> GetFiles(string folder, string? filter);
+    IReadOnlyList<string> GetFiles(string folder, string? filter, bool recurse);
     bool FileExists(string path);
     Task<string> ReadAllTextAsync(string path, CancellationToken ct = default);
     Task<string[]> ReadAllLinesAsync(string path, CancellationToken ct = default);
 
     Task WriteAllTextAsync(string path,string content, CancellationToken ct = default);
+    void RenameFile(string mdFile, string safeFilename);
+    bool FolderExists(string folder);
   }
 }
