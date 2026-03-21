@@ -22,5 +22,7 @@ namespace DocFxHelper.Infrastructure
     Task WriteAllTextAsync(string path,string content, CancellationToken ct = default);
     void RenameFile(string mdFile, string safeFilename);
     bool FolderExists(string folder);
+    void DeleteFile(string file);
+    string? FindFileUpwards(string folder, string filename, int levels = 0);
   }
 }

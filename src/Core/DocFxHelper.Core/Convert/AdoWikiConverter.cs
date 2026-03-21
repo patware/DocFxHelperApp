@@ -47,13 +47,15 @@ namespace DocFxHelper.Core.Convert
       _logger.LogInformation("Copying to [{converted}]", Path.GetRelativePath(buildPaths.WorkingDirectory, convertedFolder));
       _fileSystem.CopyDirectory(sourceFolder, convertedFolder);
 
-      _logger.LogInformation("Step 1 - Set Initial Yaml Headers");
-
       var wikiBase = new Uri(EnsureTrailingSlash(sourceSpec.WikiUrl), UriKind.Absolute);
       _logger.LogInformation("Wiki base is {wikiBase}", wikiBase);
 
+      _logger.LogInformation("Fetch list of .md files");
       var mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
 
+      _logger.LogInformation("Number of .md files: {countOfMdFiles}", mdFiles.Count);
+
+      _logger.LogInformation("Step 1 - Set Initial Yaml Headers");
       foreach (var mdFile in mdFiles)
       {
         await SetInitialYamlHeaders(convertedFolder, wikiBase, mdFile, ct);

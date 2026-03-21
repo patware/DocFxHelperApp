@@ -11,7 +11,7 @@ namespace DocFxHelper.Infrastructure
 
     public IReadOnlyList<string> GetDirectories(string path, bool recurse)
     {
-      SearchOption searchOption =  recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+      SearchOption searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
       if (DirectoryExists(path))
       {
@@ -53,7 +53,7 @@ namespace DocFxHelper.Infrastructure
 
     public void CreateDirectory(string path)
       => Directory.CreateDirectory(path);
-    
+
 
     public bool FolderExists(string folder)
       => Directory.Exists(folder);
@@ -93,9 +93,29 @@ namespace DocFxHelper.Infrastructure
       var newPath = Path.Combine(Path.GetDirectoryName(mdFile)!, safeFilename);
 
       File.Move(mdFile, newPath);
-      
+
     }
 
-    
+    public void DeleteFile(string file)
+      => File.Delete(file);
+
+    public string? FindFileUpwards(string path, string filename, int levels = 0)
+    {
+      var di = new DirectoryInfo(path);
+            
+      do
+      {
+        var pathToFile = System.IO.Path.Combine(di.FullName, filename);
+        if (File.Exists(pathToFile))
+        {
+          return pathToFile;
+        }
+
+        di = di.Parent;
+
+      }while(di != null && di.FullName.Split(Path.DirectorySeparatorChar).Length >= levels);
+
+      return null;
+    }
   }
 }

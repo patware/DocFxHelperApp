@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -33,6 +34,20 @@ namespace DocFxHelper.Core.Specs
     /// </remarks>
     [System.Text.Json.Serialization.JsonPropertyName("targetRelativePath")]
     public string TargetRelativePath { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets a value indicating whether the item should be included in the table of contents.  Default is true.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("showInToc")]
+    public bool ShowInToc { get; init; } = true;
+
+
+    /// <summary>
+    /// Gets the display name of the parent table of contents (TOC) item under which this source will be added to.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("parentTocDisplayName")]
+    public string? ParentTocDisplayName { get; init; }
+
 
     /// <summary>
     /// Gets the collection of child source items associated with this instance.

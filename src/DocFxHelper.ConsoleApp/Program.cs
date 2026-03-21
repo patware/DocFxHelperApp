@@ -37,6 +37,7 @@ builder.Services.AddTransient<IVerification, Verification>();
 builder.Services.AddTransient<DocFxHelper.Core.Convert.IConversion, DocFxHelper.Core.Convert.ConversionService>();
 builder.Services.AddTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>();
 builder.Services.AddTransient<DocFxHelper.Core.Engine.IProcessor, DocFxHelper.Core.Engine.NaiveSequentialProcessor>();
+builder.Services.AddTransient<DocFxHelper.Core.Utils.ITocHelper, DocFxHelper.Core.Utils.TocHelper>();
 builder.Services.AddTransient<DocFxHelper.Core.Utils.IGeneral, DocFxHelper.Core.Utils.General>();
 builder.Services.AddTransient<DocFxHelper.Core.Graph.IGraphBuilder, DocFxHelper.Core.Graph.GraphBuilder>();
 builder.Services.AddTransient<DocFxHelper.Core.Building.IAssembly, DocFxHelper.Core.Building.Assembly>();

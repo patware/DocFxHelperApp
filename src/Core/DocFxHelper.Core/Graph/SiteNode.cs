@@ -7,7 +7,9 @@ namespace DocFxHelper.Core.Graph
     public required string Id { get; init; }
     public required string DisplayName { get; init; }
     public required string Path { get; init; }
-    public IReadOnlyList<SiteNode> Children { get; init; } = new List<SiteNode>();
+    public required bool ShowInToc { get; init; }
+    public string? ParentTocDisplayName { get; init; }
+    public IReadOnlyList<SiteNode> Children { get; init; } = [];
 
     public required SourceSpec SourceSpec { get; init; }
   }
