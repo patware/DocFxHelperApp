@@ -8,5 +8,9 @@ namespace DocFxHelper.Core.Specs
   {
     [System.Text.Json.Serialization.JsonPropertyName("wikiUrl")]
     public required string WikiUrl { get; init; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("topMenuReferenced")]
+
+    public bool TopMenuReferenced { get; init; } = false;
   }
 }

@@ -106,11 +106,16 @@ namespace DocFxHelper.Core.Convert
         }
       }
 
+      var rootDi = new DirectoryInfo(convertedFolder);
       var dotOrders = _fileSystem.GetFiles(convertedFolder, ".order", true);
 
-      foreach(var dotOrder in dotOrders)
+      foreach (var dotOrder in dotOrders)
       {
-        await ConvertOrderToToc(dotOrder);
+
+        var isTopNav = sourceSpec.TopMenuReferenced 
+          && string.Equals(rootDi.FullName, new DirectoryInfo(Path.GetDirectoryName(dotOrder)!).FullName, StringComparison.InvariantCultureIgnoreCase);
+
+        await ConvertOrderToToc(dotOrder, isTopNav);
       }
 
       await Task.CompletedTask;
@@ -143,7 +148,7 @@ namespace DocFxHelper.Core.Convert
 
     }
 
-    private async Task ConvertOrderToToc(string dotOrder)
+    private async Task ConvertOrderToToc(string dotOrder, bool isTopNav)
     {
       string directory = Path.GetDirectoryName(dotOrder)!;
 
@@ -168,7 +173,15 @@ namespace DocFxHelper.Core.Convert
 
           if (lineFileMdExists && lineFolderExists)
           {
-            sb.AppendLine($"  href: {line}/toc.yml");
+            if (isTopNav)
+            {
+              sb.AppendLine($"  href: {line}/");
+            }
+            else
+            {
+              sb.AppendLine($"  href: {line}/toc.yml");
+            }
+            
             sb.AppendLine($"  homepage: {line}.md");
           }
           else if(lineFileMdExists)
