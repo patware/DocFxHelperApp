@@ -88,6 +88,7 @@ namespace DocFxHelper.Core.Graph
           SourceSpec = ss,
           Path = ni.TargetRelativePath,
           ShowInToc = ni.ShowInToc,
+          TocItemInsertAtIndex = ni.TocItemInsertAtIndex,
           ParentTocDisplayName = ni.ParentTocDisplayName,
           Children = childList
         };

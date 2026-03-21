@@ -41,6 +41,11 @@ namespace DocFxHelper.Core.Specs
     [System.Text.Json.Serialization.JsonPropertyName("showInToc")]
     public bool ShowInToc { get; init; } = true;
 
+    /// <summary>
+    /// Indicates the index where the the TocItem will be inserted in the list.
+    /// </summary>
+    public int? TocItemInsertAtIndex { get; init; }
+
 
     /// <summary>
     /// Gets the display name of the parent table of contents (TOC) item under which this source will be added to.

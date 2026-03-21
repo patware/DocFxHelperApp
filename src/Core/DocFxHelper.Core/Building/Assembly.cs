@@ -180,7 +180,14 @@ namespace DocFxHelper.Core.Building
           Name = child.DisplayName
         };
 
-        items.Add(childTocItem);
+        if (child.TocItemInsertAtIndex == null)
+        {
+          items.Add(childTocItem);
+        }
+        else
+        {
+          items.Insert(child.TocItemInsertAtIndex.Value, childTocItem);
+        }
       }
 
       var childNodePath = System.IO.Path.Combine(buildPaths.Staging, child.Id);
