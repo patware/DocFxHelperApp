@@ -117,5 +117,9 @@ namespace DocFxHelper.Infrastructure
 
       return null;
     }
+
+    public void MoveFile(string source, string destination)
+      => System.IO.File.Move(source, destination);
+    
   }
 }

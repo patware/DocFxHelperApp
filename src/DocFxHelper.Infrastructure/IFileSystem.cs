@@ -24,5 +24,6 @@ namespace DocFxHelper.Infrastructure
     bool FolderExists(string folder);
     void DeleteFile(string file);
     string? FindFileUpwards(string folder, string filename, int levels = 0);
+    void MoveFile(string source, string destination);
   }
 }

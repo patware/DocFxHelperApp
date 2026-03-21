@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Xml.Linq;
 using YamlDotNet.RepresentationModel;
@@ -17,10 +18,13 @@ namespace DocFxHelper.Core.Convert
 {
   public class AdoWikiConverter(
     ILogger<AdoWikiConverter> logger,
-    Infrastructure.IFileSystem fileSystem) : BaseConverter<Specs.AdoWikiSourceSpec>
+    Infrastructure.IFileSystem fileSystem,
+    Utils.ITocHelper tocHelper) : BaseConverter<Specs.AdoWikiSourceSpec>
   {
     private readonly ILogger<AdoWikiConverter> _logger = logger;
     private readonly Infrastructure.IFileSystem _fileSystem = fileSystem;
+    private readonly Utils.ITocHelper _tocHelper = tocHelper;
+
     private readonly MarkdownPipeline _pipeline = new MarkdownPipelineBuilder()
       .UseYamlFrontMatter()
       .Build();
@@ -61,14 +65,32 @@ namespace DocFxHelper.Core.Convert
         await SetInitialYamlHeaders(convertedFolder, wikiBase, mdFile, ct);
       }
 
-
       _logger.LogInformation("Step 2 - Snapshot .order files to the corresponding md file guid");
-
       var dotOrderFiles = _fileSystem.GetFiles(convertedFolder, ".order", true);
-
       foreach(var dotOrderFile in dotOrderFiles)
       {
         await Snapshot(convertedFolder, wikiBase, dotOrderFile, ct);
+      }
+
+      var promotionDic = new Dictionary<string, string>();
+
+      if (sourceSpec.Promote != null && sourceSpec.Promote.Any())
+      {
+        _logger.LogInformation("Step 3 - Promote Pages - {count} specified", sourceSpec.Promote.Count);
+
+        foreach (var promote in sourceSpec.Promote)
+        {
+          promotionDic.Add(promote, Promote(convertedFolder, promote));
+        }
+      }
+      else
+      {
+        _logger.LogInformation("Step 3 - Promote Pages - none specified");
+      }
+
+      if (promotionDic.Any())
+      {
+        mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
       }
 
       _logger.LogInformation("Step 3 - Prepare Hyperlinks");
@@ -76,7 +98,6 @@ namespace DocFxHelper.Core.Convert
       {
         await PrepareHyperlinks(convertedFolder, wikiBase, mdFile, ct);
       }
-
 
       _logger.LogInformation("Step 4 - Rename [md Files] to DocFx safe name format");
       foreach (var mdFile in mdFiles)
@@ -111,16 +132,77 @@ namespace DocFxHelper.Core.Convert
 
       foreach (var dotOrder in dotOrders)
       {
-
         var isTopNav = sourceSpec.TopMenuReferenced 
           && string.Equals(rootDi.FullName, new DirectoryInfo(Path.GetDirectoryName(dotOrder)!).FullName, StringComparison.InvariantCultureIgnoreCase);
 
-        await ConvertOrderToToc(dotOrder, isTopNav);
+        await ConvertOrderToToc(dotOrder, isTopNav, promotionDic);
       }
 
       await Task.CompletedTask;
 
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
+    }
+
+    private string Promote(string path, string promote)
+    {
+      var dic = new Dictionary<string, string>();
+
+      var subFolderName = Path.GetFileNameWithoutExtension(promote);
+      var subFolderPath = Path.Combine(path, subFolderName);
+
+      if (!_fileSystem.DirectoryExists(subFolderPath))
+      {
+        _fileSystem.CreateDirectory(subFolderPath);
+      }
+
+      var destination = string.Empty;
+
+      var destinationIndexMd = Path.Combine(subFolderPath, "Index.md");
+
+      if (!_fileSystem.FileExists(destinationIndexMd))
+      {
+        destination = destinationIndexMd;
+      }
+      else
+      {
+        var destinationPromoteMd = Path.Combine(subFolderPath, subFolderName);
+
+        if (!_fileSystem.FileExists(destinationPromoteMd))
+        {
+          destination = destinationPromoteMd;
+        }
+        else
+        {
+          int i = 0;
+
+          destination = string.Empty;
+
+          do
+          {
+            i++;
+
+            var filenameWithIndex = Path.Combine(subFolderPath, string.Concat(subFolderPath, "_", i, ".md"));
+
+            if (!_fileSystem.FileExists(filenameWithIndex))
+            {
+              destination = filenameWithIndex;
+            }
+
+          } while (string.IsNullOrEmpty(destination) && i < 100);
+        }
+      }
+
+      if (string.IsNullOrEmpty(destination))
+      {
+        _logger.LogWarning("Couldn't find a filename to promote {promote} to.", promote);
+        return Path.Combine(subFolderPath, promote);
+      }
+
+      var source = Path.Combine(path, promote);
+
+      _fileSystem.MoveFile(source, destination);
+
+      return destination;
     }
 
     private async Task EnsureDotOrderExistsAsync(string folder, CancellationToken ct = default!)
@@ -148,62 +230,80 @@ namespace DocFxHelper.Core.Convert
 
     }
 
-    private async Task ConvertOrderToToc(string dotOrder, bool isTopNav)
+    private async Task ConvertOrderToToc(string dotOrder, bool isTopNav, IDictionary<string, string> promotionDic)
     {
       string directory = Path.GetDirectoryName(dotOrder)!;
 
       var lines = await _fileSystem.ReadAllLinesAsync(dotOrder);
 
-      var sb = new StringBuilder();
-
-      sb.AppendLine("items:");
+      var toc = new Graph.Toc();
 
       foreach(var line in lines)
       {
-        if (line != "Index")
+        if (string.Equals(line, "index", StringComparison.InvariantCultureIgnoreCase))
         {
-          var lineFileMd = System.IO.Path.Combine(directory, string.Concat(line, ".md"));
-          var lineFolder = System.IO.Path.Combine(directory, line);
-
-          var lineFileMdExists = _fileSystem.FileExists(lineFileMd);
-          var lineFolderExists = _fileSystem.FolderExists(lineFolder);
-
-
-          sb.AppendLine($"- name: {line}");
-
-          if (lineFileMdExists && lineFolderExists)
+          if (lines.Length == 1)
           {
-            if (isTopNav)
+            toc.Items.Add(new Graph.TocItem
             {
-              sb.AppendLine($"  href: {line}/");
-            }
-            else
-            {
-              sb.AppendLine($"  href: {line}/toc.yml");
-            }
-            
-            sb.AppendLine($"  homepage: {line}.md");
+              Name = line
+            });
+
           }
-          else if(lineFileMdExists)
+          continue;
+        }
+
+        var tocItem = new Graph.TocItem
+        {
+          Name = line
+        };
+
+        toc.Items.Add(tocItem);
+
+        var mdFile = string.Concat(line, ".md");
+
+        if (promotionDic.ContainsKey(mdFile))
+        {
+          var promoted = promotionDic[mdFile];
+          
+          tocItem.Href = $"{line}\\";
+          tocItem.Homepage = $"{Path.GetRelativePath(directory, promoted)}";          
+        }
+        else
+        {
+
+          var mdFilePath = Path.Combine(directory, mdFile);
+          var mdFolder = Path.Combine(directory, line);
+
+          var mdFileExists = _fileSystem.FileExists(mdFilePath);
+          var mdFolderExists = _fileSystem.DirectoryExists(mdFolder);
+
+          if (mdFileExists && mdFolderExists)
           {
-            sb.AppendLine($"  href: {line}.md");
+            tocItem.Href = $"{line}/";
+            tocItem.Homepage = $"{line}.md";
           }
-          else if (lineFolderExists)
+          else if (mdFileExists)
           {
-            sb.AppendLine($"  href: {line}/toc.yml");
+            tocItem.Href = $"{line}.md";
+          }
+          else if (mdFolderExists)
+          {
+            tocItem.Href = $"{line}/";
           }
           else
           {
             _logger.LogWarning("Edge case, neither {line} .md or folder name exists -> renamed ?", line);
           }
-          
-        }
+        }        
       }
-           
+
+      var yaml = _tocHelper.GetString(toc);
+
       var tocYml = Path.Combine(directory!, "toc.yml");
 
       _logger.LogInformation("{dotOrder} => toc.yml", dotOrder);
-      await _fileSystem.WriteAllTextAsync(tocYml!, sb.ToString());
+      await _fileSystem.WriteAllTextAsync(tocYml!, yaml);
     }
 
     private async Task RenameMdFilesToDocFxSafeFormat(string convertedFolder, Uri wikiBase, string mdFile, CancellationToken ct)
