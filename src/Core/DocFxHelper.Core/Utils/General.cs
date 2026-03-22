@@ -13,6 +13,8 @@ namespace DocFxHelper.Core.Utils
     private readonly ILogger<General> _logger = logger;
     private readonly Infrastructure.IFileSystem _fileSystem = fileSystem;
 
+    public const string Default = "Index";
+
     public void EnsureExists(BuildPaths buildPaths)
     {
       _logger.LogInformation("Checking if [{workingDirectory}] has all the expected sub folders", buildPaths.WorkingDirectory);

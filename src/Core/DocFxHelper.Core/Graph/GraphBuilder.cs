@@ -71,25 +71,26 @@ namespace DocFxHelper.Core.Graph
 
       while (stack.Count > 0)
       {
-        var ni = stack.Pop();
+        var nodeItem = stack.Pop();
         
-        var ss = buildContext.Sources[ni.ResourceId];
+        var sourceSpec = buildContext.Sources[nodeItem.ResourceId];
 
         var childList = new List<SiteNode>();
 
-        foreach(var childId in ni.Children.Select(s => s.ResourceId))
+        foreach(var childId in nodeItem.Children.Select(s => s.ResourceId))
         {
           childList.Add(dic[childId]);
         }
 
         var sn = new SiteNode { 
-          Id = ni.ResourceId,
-          DisplayName = ss.DisplayName,
-          SourceSpec = ss,
-          Path = ni.TargetRelativePath,
-          ShowInToc = ni.ShowInToc,
-          TocItemInsertAtIndex = ni.TocItemInsertAtIndex,
-          ParentTocDisplayName = ni.ParentTocDisplayName,
+          Id = nodeItem.ResourceId,
+          DisplayName = sourceSpec.DisplayName,
+          SourceSpec = sourceSpec,
+          Path = nodeItem.TargetRelativePath,
+          ShowInToc = nodeItem.ShowInToc,
+          DefaultPage = sourceSpec.DefaultPage,
+          TocItemInsertAtIndex = nodeItem.TocItemInsertAtIndex,
+          ParentTocDisplayName = nodeItem.ParentTocDisplayName,
           Children = childList
         };
         

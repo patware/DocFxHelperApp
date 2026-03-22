@@ -13,5 +13,6 @@ namespace DocFxHelper.Core.Graph
     public IReadOnlyList<SiteNode> Children { get; init; } = [];
 
     public required SourceSpec SourceSpec { get; init; }
+    public required string DefaultPage { get; init; }
   }
 }

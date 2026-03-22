@@ -194,11 +194,11 @@ namespace DocFxHelper.Core.Convert
 
       var destination = string.Empty;
 
-      var destinationIndexMd = Path.Combine(subFolderPath, "Index.md");
+      var destinationDefaultMd = Path.Combine(subFolderPath, $"{Utils.General.Default}.md");
 
-      if (!_fileSystem.FileExists(destinationIndexMd))
+      if (!_fileSystem.FileExists(destinationDefaultMd))
       {
-        destination = destinationIndexMd;
+        destination = destinationDefaultMd;
       }
       else
       {
@@ -279,13 +279,16 @@ namespace DocFxHelper.Core.Convert
       {
         var safeLine = GetSafeFilename(line);
 
-        if (string.Equals(safeLine, "index", StringComparison.InvariantCultureIgnoreCase))
+        var mdFile = string.Concat(safeLine, ".md");
+
+        if (string.Equals(safeLine, Utils.General.Default, StringComparison.InvariantCultureIgnoreCase))
         {
           if (lines.Length == 1)
           {
             toc.Items.Add(new Graph.TocItem
             {
-              Name = safeLine
+              Name = safeLine,
+              Href = mdFile
             });
 
           }
@@ -300,7 +303,7 @@ namespace DocFxHelper.Core.Convert
 
         toc.Items.Add(tocItem);
 
-        var mdFile = string.Concat(safeLine, ".md");
+        
 
         if (promotionDic.ContainsKey(mdFile))
         {

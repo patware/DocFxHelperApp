@@ -47,7 +47,7 @@ namespace DocFxHelper.Core.Specs
     /// property is set to "default.md". Changing this value allows customization of the landing page for documentation
     /// or content navigation.</remarks>
     [System.Text.Json.Serialization.JsonPropertyName("defaultPage")]
-    public string DefaultPage { get; init; } = "default.md";
+    public string DefaultPage { get; init; } = $"{Utils.General.Default}.md";
 
 
     /// <summary>
