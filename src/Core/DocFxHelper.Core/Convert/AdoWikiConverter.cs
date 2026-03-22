@@ -277,60 +277,77 @@ namespace DocFxHelper.Core.Convert
 
       foreach(var line in lines)
       {
-        if (string.Equals(line, "index", StringComparison.InvariantCultureIgnoreCase))
+        var safeLine = GetSafeFilename(line);
+
+        if (string.Equals(safeLine, "index", StringComparison.InvariantCultureIgnoreCase))
         {
           if (lines.Length == 1)
           {
             toc.Items.Add(new Graph.TocItem
             {
-              Name = line
+              Name = safeLine
             });
 
           }
           continue;
         }
+               
 
         var tocItem = new Graph.TocItem
         {
-          Name = line
+          Name = safeLine
         };
 
         toc.Items.Add(tocItem);
 
-        var mdFile = string.Concat(line, ".md");
+        var mdFile = string.Concat(safeLine, ".md");
 
         if (promotionDic.ContainsKey(mdFile))
         {
           var promoted = promotionDic[mdFile];
           
-          tocItem.Href = $"{line}\\";
+          tocItem.Href = $"{safeLine}\\";
           tocItem.Homepage = $"{Path.GetRelativePath(directory, promoted)}";          
         }
         else
         {
 
           var mdFilePath = Path.Combine(directory, mdFile);
-          var mdFolder = Path.Combine(directory, line);
+          var mdFolder = Path.Combine(directory, safeLine);
 
           var mdFileExists = _fileSystem.FileExists(mdFilePath);
           var mdFolderExists = _fileSystem.DirectoryExists(mdFolder);
 
           if (mdFileExists && mdFolderExists)
           {
-            tocItem.Href = $"{line}/";
-            tocItem.Homepage = $"{line}.md";
+            if (isTopNav)
+            {
+              tocItem.Href = $"{safeLine}/";
+            }
+            else
+            {
+              tocItem.Href = $"{safeLine}/toc.yml";
+            }
+            tocItem.Homepage = $"{safeLine}.md";
           }
           else if (mdFileExists)
           {
-            tocItem.Href = $"{line}.md";
+            tocItem.Href = $"{safeLine}.md";
           }
           else if (mdFolderExists)
           {
-            tocItem.Href = $"{line}/";
+            if (isTopNav)
+            {
+              tocItem.Href = $"{safeLine}/";
+            }
+            else
+            {
+              tocItem.Href = $"{safeLine}/toc.yml";
+            }
           }
           else
           {
-            _logger.LogWarning("Edge case, neither {line} .md or folder name exists -> renamed ?", line);
+            _logger.LogWarning("Edge case, neither {line}.md or folder name exists -> renamed ?", safeLine);
           }
         }        
       }
@@ -347,20 +364,26 @@ namespace DocFxHelper.Core.Convert
     {
       var mdFilename = Path.GetFileName(mdFile);
 
-      var mdFilenameDecoded = System.Web.HttpUtility.UrlDecode(mdFilename);
+      string safeFilename = GetSafeFilename(mdFilename);
 
-      if (mdFilenameDecoded != mdFilename)
+      if (safeFilename != mdFilename)
       {
-        string safeFilename = GetSafeFilename(mdFilename);
         _logger.LogInformation("md file [{mdFilename}] needs to be renamed to DocFx file name safe format [{}]", mdFilename, safeFilename);
 
         _fileSystem.RenameFile(mdFile, safeFilename);
       }
     }
 
-    private static string GetSafeFilename(string mdFilename)
+    private static string GetSafeFilename(string name)
     {
-      var safeFilenameReplaceKnownEscapes = mdFilename.Replace("\\(", "(").Replace("\\)", ")").Replace("-", " ");
+      var mdFilenameDecoded = System.Web.HttpUtility.UrlDecode(name);
+
+      if (string.Equals(mdFilenameDecoded, name, StringComparison.InvariantCultureIgnoreCase))
+      {
+        return name;
+      }
+
+      var safeFilenameReplaceKnownEscapes = name.Replace("\\(", "(").Replace("\\)", ")").Replace("-", " ");
       var safeFilename = System.Web.HttpUtility.UrlDecode(safeFilenameReplaceKnownEscapes);
       return safeFilename;
     }
