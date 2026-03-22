@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NodeDeserializers;
+using static System.Net.WebRequestMethods;
 
 namespace DocFxHelper.Core.Convert
 {
@@ -106,6 +107,7 @@ namespace DocFxHelper.Core.Convert
       }
 
       _logger.LogInformation("Step 5 - Rename [Folders] to DocFx safe name format");
+      var renamedFoldersDic = await RenameFoldersToDocFxSafeFormat(convertedFolder, ct);
 
       _logger.LogInformation("Step 6 - Move Root [md Files] that should actually be in their subfolder");
 
@@ -117,7 +119,8 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Step 10 - Convert .order to toc.yml");
 
-      var folders = _fileSystem.GetDirectories(convertedFolder, true);
+      var folders = renamedFoldersDic.Values;
+
       foreach(var folder in folders)
       {
         if (!System.IO.Path.GetFileName(folder).StartsWith('.'))
@@ -141,6 +144,40 @@ namespace DocFxHelper.Core.Convert
       await Task.CompletedTask;
 
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
+    }
+
+    private async Task<IReadOnlyDictionary<string,string>> RenameFoldersToDocFxSafeFormat(string folder, CancellationToken ct)
+    {
+      var ret = new Dictionary<string,string>();
+
+      var childFolders = _fileSystem.GetDirectories(folder, false);
+
+      foreach(var childFolder in childFolders)
+      {
+        var renames = await RenameFoldersToDocFxSafeFormat(childFolder, ct);
+
+        foreach (var rename in renames)
+        {
+          ret.Add(rename.Key, rename.Value);
+        }
+      }
+
+      ret.Add(folder, folder);
+
+      var folderName = new DirectoryInfo(folder).Name;
+
+      var folderNameDecoded = System.Web.HttpUtility.UrlDecode(folderName);
+
+      if (folderNameDecoded != folderName)
+      {
+        string safeFolderName = GetSafeFilename(folderName);
+        _logger.LogInformation("Folder [{folderName}] needs to be renamed to DocFx file name safe format [{}]", folderName, safeFolderName);
+
+        ret[folder] = _fileSystem.RenameDirectory(folder, safeFolderName);
+      }
+
+
+      return ret;
     }
 
     private string Promote(string path, string promote)

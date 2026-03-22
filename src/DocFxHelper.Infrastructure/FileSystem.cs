@@ -88,12 +88,13 @@ namespace DocFxHelper.Infrastructure
     public async Task<string[]> ReadAllLinesAsync(string path, CancellationToken ct = default)
       => await File.ReadAllLinesAsync(path, ct);
 
-    public void RenameFile(string mdFile, string safeFilename)
+    public string RenameFile(string sourceFilename, string destinationFilename)
     {
-      var newPath = Path.Combine(Path.GetDirectoryName(mdFile)!, safeFilename);
+      var newPath = Path.Combine(Path.GetDirectoryName(sourceFilename)!, destinationFilename);
 
-      File.Move(mdFile, newPath);
+      File.Move(sourceFilename, newPath);
 
+      return newPath;
     }
 
     public void DeleteFile(string file)
@@ -120,6 +121,15 @@ namespace DocFxHelper.Infrastructure
 
     public void MoveFile(string source, string destination)
       => System.IO.File.Move(source, destination);
-    
+
+    public string RenameDirectory(string sourceFolder, string destinationFolder)
+    {
+      var newPath = Path.Combine(Path.GetDirectoryName(sourceFolder)!, destinationFolder);
+
+      Directory.Move(sourceFolder, newPath);
+
+      return newPath;
+
+    }
   }
 }
