@@ -12,8 +12,6 @@ using System.Text;
 using System.Xml.Linq;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NodeDeserializers;
-using static System.Net.WebRequestMethods;
 
 namespace DocFxHelper.Core.Convert
 {
@@ -109,15 +107,18 @@ namespace DocFxHelper.Core.Convert
       _logger.LogInformation("Step 5 - Rename [Folders] to DocFx safe name format");
       var renamedFoldersDic = await RenameFoldersToDocFxSafeFormat(convertedFolder, ct);
 
-      _logger.LogInformation("Step 6 - Move Root [md Files] that should actually be in their subfolder");
+      _logger.LogInformation("Step 6 - Finalize Hyperlinks");
 
-      _logger.LogInformation("Step 7 - Finalize Hyperlinks");
+      _logger.LogInformation("Step 7 - Update Mermaid Code Delimiters");
+      mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
+      foreach(var mdFile in mdFiles)
+      {
+        await UpdateMermaidCodeDelimiters(mdFile, ct);
+      }
 
-      _logger.LogInformation("Step 8 - Update Mermaid Code Delimiters");
+      _logger.LogInformation("Step 8 - Set each page's UID");
 
-      _logger.LogInformation("Step 9 - Set each page's UID");
-
-      _logger.LogInformation("Step 10 - Convert .order to toc.yml");
+      _logger.LogInformation("Step 9 - Convert .order to toc.yml");
 
       var folders = renamedFoldersDic.Values;
 
@@ -144,6 +145,48 @@ namespace DocFxHelper.Core.Convert
       await Task.CompletedTask;
 
       _logger.LogInformation("{id} Converted", sourceSpec.Id);
+    }
+
+    private async Task UpdateMermaidCodeDelimiters(string mdFile, CancellationToken ct = default)
+    {
+      var markdown = await _fileSystem.ReadAllTextAsync(mdFile, ct);
+      var updatedMarkdown = ConvertMermaidCodeDelimiters(markdown);
+
+      if (!string.Equals(markdown, updatedMarkdown, StringComparison.Ordinal))
+      {
+        await _fileSystem.WriteAllTextAsync(mdFile, updatedMarkdown, ct);
+      }
+    }
+
+    internal static string ConvertMermaidCodeDelimiters(string markdown)
+    {
+      var newline = markdown.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+      var lines = markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+      var output = new List<string>(lines.Length);
+      var insideMermaidBlock = false;
+
+      foreach (var line in lines)
+      {
+        var trimmed = line.Trim();
+
+        if (!insideMermaidBlock && string.Equals(trimmed, "::: mermaid", StringComparison.OrdinalIgnoreCase))
+        {
+          output.Add(line.Replace(trimmed, "``` mermaid", StringComparison.Ordinal));
+          insideMermaidBlock = true;
+          continue;
+        }
+
+        if (insideMermaidBlock && string.Equals(trimmed, ":::", StringComparison.Ordinal))
+        {
+          output.Add(line.Replace(trimmed, "```", StringComparison.Ordinal));
+          insideMermaidBlock = false;
+          continue;
+        }
+
+        output.Add(line);
+      }
+
+      return string.Join(newline, output);
     }
 
     private async Task<IReadOnlyDictionary<string,string>> RenameFoldersToDocFxSafeFormat(string folder, CancellationToken ct)
