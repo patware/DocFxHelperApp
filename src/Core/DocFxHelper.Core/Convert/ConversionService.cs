@@ -1,4 +1,5 @@
 ﻿using DocFxHelper.Core.Specs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -12,11 +13,16 @@ namespace DocFxHelper.Core.Convert
     private readonly ILogger<ConversionService> _logger;
     private readonly Dictionary<Type, ISpecConverter> _converters;
         
-    public ConversionService(ILogger<ConversionService> logger, IEnumerable<ISpecConverter> converters)
+    public ConversionService(ILogger<ConversionService> logger, 
+      [FromKeyedServices(nameof(Specs.AdoWikiSourceSpec))] ISpecConverter adoWikiConverter,
+      [FromKeyedServices(nameof(Specs.DotnetApiSourceSpec))] ISpecConverter dotnetApiConverter)
     {
       _logger = logger;
 
-      _converters = converters.ToDictionary(c => c.SourceType);
+      _converters = [];
+
+      _converters.Add(typeof(Specs.AdoWikiSourceSpec), adoWikiConverter);
+      _converters.Add(typeof(Specs.DotnetApiSourceSpec), dotnetApiConverter);
 
     }
 

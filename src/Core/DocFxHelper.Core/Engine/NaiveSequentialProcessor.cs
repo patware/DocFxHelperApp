@@ -39,6 +39,12 @@ namespace DocFxHelper.Core.Engine
 
       _general.EnsureExists(buildPaths);
 
+      var isDocfxInstalled = await _verification.IsDocfxInstalledAsync(ct);
+      if (!isDocfxInstalled)
+      {
+        _logger.LogInformation("Docfx not found");        
+      }
+
       _logger.LogInformation("Step 1 - Recon");
       var readyDrops = _scout.Recon(buildPaths.Drop);
 

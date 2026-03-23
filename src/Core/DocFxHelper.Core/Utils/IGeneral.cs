@@ -7,5 +7,8 @@ namespace DocFxHelper.Core.Utils
     void EnsureExists(BuildPaths buildPaths);
 
     void MoveToOrphanFolder(string folderPath, BuildPaths buildPaths);
+
+    string? GetFileResource(string name);
+    
   }
 }

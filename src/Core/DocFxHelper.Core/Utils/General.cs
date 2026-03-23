@@ -66,5 +66,25 @@ namespace DocFxHelper.Core.Utils
       _logger.LogInformation("Moving [{from}] to [{to}]", System.IO.Path.GetRelativePath(buildPaths.WorkingDirectory, folderPath), System.IO.Path.GetRelativePath(buildPaths.WorkingDirectory, orphanFolder));
       _fileSystem.MoveDirectory(folderPath, orphanFolder);
     }
+
+    public string? GetFileResource(string name)
+    {
+      System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
+
+      using (Stream? stream = ass.GetManifestResourceStream(name))
+      {
+        if (stream == null)
+        {
+          return null;
+        }
+
+        using (StreamReader sr = new StreamReader(stream))
+        {
+          string result = sr.ReadToEnd();
+
+          return result;
+        }
+      }
+    }
   }
 }

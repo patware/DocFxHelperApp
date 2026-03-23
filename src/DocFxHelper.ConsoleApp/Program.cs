@@ -1,4 +1,5 @@
 ﻿using DocFxHelper.Core.Utils;
+using DocFxHelper.Infrastructure.DocFx;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,12 +36,18 @@ builder.Services.AddTransient<DocFxHelper.Core.Drops.IScout, DocFxHelper.Core.Dr
 builder.Services.AddTransient<DocFxHelper.Core.Sources.IIngestion, DocFxHelper.Core.Sources.Ingestion>();
 builder.Services.AddTransient<IVerification, Verification>();
 builder.Services.AddTransient<DocFxHelper.Core.Convert.IConversion, DocFxHelper.Core.Convert.ConversionService>();
-builder.Services.AddTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>();
 builder.Services.AddTransient<DocFxHelper.Core.Engine.IProcessor, DocFxHelper.Core.Engine.NaiveSequentialProcessor>();
 builder.Services.AddTransient<DocFxHelper.Core.Utils.ITocHelper, DocFxHelper.Core.Utils.TocHelper>();
 builder.Services.AddTransient<DocFxHelper.Core.Utils.IGeneral, DocFxHelper.Core.Utils.General>();
 builder.Services.AddTransient<DocFxHelper.Core.Graph.IGraphBuilder, DocFxHelper.Core.Graph.GraphBuilder>();
 builder.Services.AddTransient<DocFxHelper.Core.Building.IAssembly, DocFxHelper.Core.Building.Assembly>();
+builder.Services.AddTransient<DocFxHelper.Infrastructure.IDotnetHelper, DocFxHelper.Infrastructure.DotnetHelper>();
+
+builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>(nameof(DocFxHelper.Core.Specs.AdoWikiSourceSpec));
+builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.DotnetApiConverter>(nameof(DocFxHelper.Core.Specs.DotnetApiSourceSpec));
+
+
+builder.Services.AddSingleton<IDocFxHelper, DocFxHelper.Infrastructure.DocFx.DocFxHelper>();
 
 builder.Services.AddTransient<DocFxHelper.ConsoleApp.App>();
 

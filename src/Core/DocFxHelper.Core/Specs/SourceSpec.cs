@@ -4,6 +4,7 @@ namespace DocFxHelper.Core.Specs
 {
   [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
   [JsonDerivedType(typeof(AdoWikiSourceSpec), typeDiscriminator: nameof(SourceType.AdoWiki))]
+  [JsonDerivedType(typeof(DotnetApiSourceSpec), typeDiscriminator: nameof(SourceType.DotnetApi))]
   [JsonDerivedType(typeof(YamlApiSourceSpec), typeDiscriminator: nameof(SourceType.YamlApi))]
 
   ///<summary>

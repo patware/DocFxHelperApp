@@ -9,5 +9,7 @@ namespace DocFxHelper.Core.Utils
   public interface IVerification
   {
     IReadOnlyList<string> GetOrphanFolders(BuildPaths buildPaths, GraphBuildContext graphBuildContext);
+
+    Task<bool> IsDocfxInstalledAsync(CancellationToken ct = default!);
   }
 }
