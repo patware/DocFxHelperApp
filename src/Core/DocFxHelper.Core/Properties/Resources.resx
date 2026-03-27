@@ -122,4 +122,8 @@
     <value>..\Resources\docfx.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
     <comment>Docfx.json file with metadata instructions to generate yaml api files</comment>
   </data>
+  <data name="docfx_restapi_metadata" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\docfx.restapi.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <comment>docfx.json file for rest api metadata</comment>
+  </data>
 </root>

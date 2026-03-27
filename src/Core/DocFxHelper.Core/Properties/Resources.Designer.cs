@@ -67,9 +67,8 @@ namespace DocFxHelper.Core.Properties {
         ///    {
         ///      &quot;src&quot;: [
         ///        {
-        ///          &quot;src&quot;: &quot;src/&quot;,
         ///          &quot;files&quot;: [
-        ///            &quot;**/*.csproj&quot;
+        ///            &quot;**.dll&quot;
         ///          ]
         ///        }
         ///      ],
@@ -81,6 +80,29 @@ namespace DocFxHelper.Core.Properties {
         internal static string docfx_metadata {
             get {
                 return ResourceManager.GetString("docfx_metadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json&quot;,
+        ///  &quot;metadata&quot;: [
+        ///    {
+        ///      &quot;src&quot;: [
+        ///        {
+        ///          &quot;files&quot;: [
+        ///            &quot;**.dll&quot;
+        ///          ]
+        ///        }
+        ///      ],
+        ///      &quot;dest&quot;: &quot;api&quot;
+        ///    }
+        ///  ]
+        ///}.
+        /// </summary>
+        internal static string docfx_restapi_metadata {
+            get {
+                return ResourceManager.GetString("docfx_restapi_metadata", resourceCulture);
             }
         }
     }

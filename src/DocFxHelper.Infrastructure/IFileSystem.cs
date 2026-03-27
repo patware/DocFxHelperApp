@@ -12,7 +12,7 @@ namespace DocFxHelper.Infrastructure
     void CreateDirectory(string path);
     void DeleteDirectory(string path);
     void MoveDirectory(string source, string destination);
-    void CopyDirectory(string source, string destination);
+    void CopyDirectory(string source, string destination, IReadOnlyList<string>? excludeFiles = null);
     string RenameDirectory(string sourceFolder, string destinationFolder);
 
     IReadOnlyList<string> GetFiles(string folder, string? filter, bool recurse);

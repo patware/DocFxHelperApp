@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DocFxHelper.Infrastructure
 {
-  public class FileSystem : IFileSystem
+  public class FileSystem(ILogger<FileSystem> logger) : IFileSystem
   {
+    private readonly ILogger<FileSystem> _logger = logger;
+
     public bool DirectoryExists(string path)
         => Directory.Exists(path);
 
@@ -15,9 +18,11 @@ namespace DocFxHelper.Infrastructure
 
       if (DirectoryExists(path))
       {
+        _logger.LogDebug("GetDirectories: path {path} exists", path);
         return Directory.GetDirectories(path, "*", searchOption);
       }
 
+      _logger.LogDebug("GetDirectories: path {path} does not exist, return null", path);
       return [];
     }
 
@@ -26,26 +31,42 @@ namespace DocFxHelper.Infrastructure
 
     public void DeleteDirectory(string path)
     {
+      _logger.LogDebug("Deleting directory {path}", path);
       System.IO.Directory.Delete(path, recursive: true);
     }
 
     public void MoveDirectory(string source, string destination)
     {
+      _logger.LogDebug("Moving directory from {source} to {destination}", source, destination);
       System.IO.Directory.Move(source, destination);
     }
 
-    public void CopyDirectory(string source, string destination)
+    public void CopyDirectory(string source, string destination, IReadOnlyList<string>? excludeFiles)
     {
+      _logger.LogDebug("Copying directory from {source} to {destination}", source, destination);
       Directory.CreateDirectory(destination);
 
       foreach (var dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
       {
-        Directory.CreateDirectory(dirPath.Replace(source, destination));
+        var ftc = dirPath.Replace(source, destination);
+        _logger.LogDebug("Creating sub directory {directory}", ftc);
+        Directory.CreateDirectory(ftc);
       }
 
       foreach (var filePath in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
       {
-        File.Copy(filePath, filePath.Replace(source, destination), true);
+        var fn = Path.GetFileName(filePath);
+
+        if (excludeFiles!=null && excludeFiles.Any(n => string.Equals(n, fn)))
+        {
+          _logger.LogDebug("File {filePath} excluded from copy", filePath);
+        }
+        else
+        {
+          _logger.LogDebug("Copy File {filePath}", filePath);
+          System.IO.File.Copy(filePath, filePath.Replace(source, destination), true);
+
+        }
       }
 
 

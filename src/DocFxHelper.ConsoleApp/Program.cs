@@ -46,7 +46,6 @@ builder.Services.AddTransient<DocFxHelper.Infrastructure.IDotnetHelper, DocFxHel
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>(nameof(DocFxHelper.Core.Specs.AdoWikiSourceSpec));
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.DotnetApiConverter>(nameof(DocFxHelper.Core.Specs.DotnetApiSourceSpec));
 
-
 builder.Services.AddSingleton<IDocFxHelper, DocFxHelper.Infrastructure.DocFx.DocFxHelper>();
 
 builder.Services.AddTransient<DocFxHelper.ConsoleApp.App>();
@@ -66,7 +65,7 @@ Log.Information("Application is shutting down...");
 await Log.CloseAndFlushAsync();
 
 
-void SetWorkingDirectory(string configuredPath)
+static void SetWorkingDirectory(string configuredPath)
 {
   if (string.IsNullOrWhiteSpace(configuredPath) || configuredPath == ".")
     return;
