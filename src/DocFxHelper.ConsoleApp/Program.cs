@@ -43,6 +43,9 @@ builder.Services.AddTransient<DocFxHelper.Core.Graph.IGraphBuilder, DocFxHelper.
 builder.Services.AddTransient<DocFxHelper.Core.Building.IAssembly, DocFxHelper.Core.Building.Assembly>();
 builder.Services.AddTransient<DocFxHelper.Infrastructure.IDotnetHelper, DocFxHelper.Infrastructure.DotnetHelper>();
 
+builder.Services.AddSingleton<DocFxHelper.Core.Building.IDocFxBuildSourceContributor, DocFxHelper.Core.Building.RestApiDocFxBuildSourceContributor>();
+builder.Services.AddSingleton<DocFxHelper.Core.Building.IDocFxBuildSourceContributor, DocFxHelper.Core.Building.DefaultDocFxBuildSourceContributor>();
+
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>(nameof(DocFxHelper.Core.Specs.AdoWikiSourceSpec));
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.DotnetApiConverter>(nameof(DocFxHelper.Core.Specs.DotnetApiSourceSpec));
 

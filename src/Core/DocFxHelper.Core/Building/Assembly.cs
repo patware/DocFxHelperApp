@@ -1,5 +1,6 @@
 ﻿using DocFxHelper.Abstractions.Engine;
 using DocFxHelper.Core.Graph;
+using DocFxHelper.Core.Specs;
 using DocFxHelper.Core.Utils;
 using DocFxHelper.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -21,13 +22,15 @@ namespace DocFxHelper.Core.Building
   public class Assembly(
     ILogger<Assembly> logger,
     IFileSystem fileSystem,
-    ITocHelper tocHelper
+    ITocHelper tocHelper,
+    IEnumerable<IDocFxBuildSourceContributor> sourceContributors
     ) : IAssembly
   {
 
     private readonly ILogger<Assembly> _logger = logger;
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly ITocHelper _tocHelper = tocHelper;
+    private readonly IReadOnlyList<IDocFxBuildSourceContributor> _sourceContributors = sourceContributors.ToList();
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -211,28 +214,17 @@ namespace DocFxHelper.Core.Building
 
     }
 
-    private static async Task<JsonNode> GenerateDocFxConfigAsync(BuildPaths buildPaths, SiteGraph siteGraph, CancellationToken ct = default!)
+    private async Task<JsonNode> GenerateDocFxConfigAsync(BuildPaths buildPaths, SiteGraph siteGraph, CancellationToken ct = default!)
     {
-      Stream stream;
 
-      if (siteGraph.BuildContext.Master.DocFxJsonPath != null)
-      {
-        var docFxJson = System.IO.Path.Combine(buildPaths.Sources, "_master", siteGraph.BuildContext.Master.DocFxJsonPath);
-        stream = new FileStream(docFxJson, FileMode.Open, FileAccess.Read);
-      }
-      else
-      {
-        stream = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-      }
+      await using var stream = await OpenBaseDocFxStreamAsync(buildPaths, siteGraph);
 
       var nodeOptions = new System.Text.Json.Nodes.JsonNodeOptions
       {
         PropertyNameCaseInsensitive = true
       };
 
-      var documentOptions = new System.Text.Json.JsonDocumentOptions
-      {
-      };
+      var documentOptions = new System.Text.Json.JsonDocumentOptions();
 
       var baseDocFx = await System.Text.Json.Nodes.JsonObject.ParseAsync(stream, nodeOptions, documentOptions, ct);
 
@@ -240,21 +232,111 @@ namespace DocFxHelper.Core.Building
 
       var build = GetOrCreateObjectStrict(root, "build");
 
+      ApplySourceFragments(build, siteGraph);
+      ApplyBuildDefaults(build);
+
+      return root;
+    }
+
+    private void ApplySourceFragments(JsonObject build, SiteGraph siteGraph)
+    {
       var content = GetOrCreateArrayStrict(build, "content");
+      var resource = GetOrCreateArrayStrict(build, "resource");
+      var globalMetadata = GetOrCreateObjectStrict(build, "globalMetadata");
+      var fileMetadata = GetOrCreateObjectStrict(build, "fileMetadata");
 
-      foreach (var source in siteGraph.Sources)
+      foreach (var node in siteGraph.Sources.Values)
       {
-        content.Add(CreateSourceContent(source.Value));
-      }
+        var contributor = ResolveContributor(node.SourceSpec);
+        var fragment = contributor.Create(node);
 
+        AppendEntries(content, fragment.Content);
+        AppendEntries(resource, fragment.Resource);
+        MergeObject(globalMetadata, fragment.GlobalMetadata);
+        MergeObject(fileMetadata, fragment.FileMetadata);
+        MergeTemplates(build, fragment.Templates);
+      }
+    }
+
+    private IDocFxBuildSourceContributor ResolveContributor(SourceSpec sourceSpec)
+    {
+      var contributor = _sourceContributors.FirstOrDefault(x => x.CanHandle(sourceSpec));
+
+      return contributor ?? throw new InvalidOperationException($"No DocFX build contributor registered for source type '{sourceSpec.GetType().Name}'.");
+    }
+
+    private static void ApplyBuildDefaults(JsonObject build)
+    {
       build["output"] = "_site";
 
-      if (!build.TryGetPropertyValue("template", out JsonNode? template) || template is null)
+      if (!build.TryGetPropertyValue("template", out var templateNode) || templateNode is null)
       {
         build["template"] = new JsonArray("default", "modern");
       }
+    }
 
-      return baseDocFx;
+    private static void AppendEntries(JsonArray target, IEnumerable<JsonObject> entries)
+    {
+      foreach(var entry in entries)
+      {
+        target.Add(entry.DeepClone());
+      }
+    }
+
+    private static void MergeTemplates(JsonObject build, IEnumerable<string> templates)
+    {
+      var templateArray = GetOrCreateArrayStrict(build, "template");
+
+      var existing = new HashSet<string>(
+        templateArray
+          .Select(x => x?.GetValue<string>())
+          .Where(x => !string.IsNullOrWhiteSpace(x))!,
+        StringComparer.OrdinalIgnoreCase
+      );
+
+      foreach (var template in templates) 
+      {
+        if (existing.Add(template))
+        {
+          templateArray.Add(template);
+        }
+      }
+
+    }
+
+    private static void MergeObject(JsonObject target, JsonObject source)
+    {
+      foreach(var kvp in source)
+      {
+        if (kvp.Value is null)
+        {
+          continue;
+        }
+
+        if (kvp.Value is JsonObject sourceObj && target.TryGetPropertyValue(kvp.Key, out var existingNode) && existingNode is JsonObject targetObj)
+        {
+          MergeObject(targetObj, sourceObj);
+          continue;
+        }
+
+        target[kvp.Key] = kvp.Value.DeepClone();
+      }
+
+    }
+
+    private static Task<Stream> OpenBaseDocFxStreamAsync(BuildPaths buildPaths,SiteGraph siteGraph)
+    {
+      if (siteGraph.BuildContext.Master.DocFxJsonPath != null)
+      {
+        var docFxJson = System.IO.Path.Combine(buildPaths.Sources, "_master", siteGraph.BuildContext.Master.DocFxJsonPath);
+        Stream stream = new FileStream(docFxJson, FileMode.Open, FileAccess.Read);
+        return Task.FromResult(stream);
+      }
+      else
+      {
+        Stream empty = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
+        return Task.FromResult(empty);
+      }
     }
 
 
@@ -277,24 +359,24 @@ namespace DocFxHelper.Core.Building
 
     }
 
-    private static JsonObject CreateSourceContent(SiteNode source)
-    {
-      var dest = string.Empty;
+    //private static JsonObject CreateSourceContent(SiteNode source)
+    //{
+    //  var dest = string.Empty;
 
-      if (!string.IsNullOrEmpty(source.Path))
-      {
-        dest = source.Path;
-      }
+    //  if (!string.IsNullOrEmpty(source.Path))
+    //  {
+    //    dest = source.Path;
+    //  }
 
-      return new JsonObject
-      {
-        ["files"] = new JsonArray("**/*.{md,yml}"),
-        ["exclude"] = new JsonArray("_site/**"),
-        ["src"] = string.Concat(source.Id, "/"),
-        ["dest"] = dest
-      };
+    //  return new JsonObject
+    //  {
+    //    ["files"] = new JsonArray("**/*.{md,yml}"),
+    //    ["exclude"] = new JsonArray("_site/**"),
+    //    ["src"] = string.Concat(source.Id, "/"),
+    //    ["dest"] = dest
+    //  };
 
-    }
+    //}
 
     private static JsonObject GetOrCreateObjectStrict(JsonObject parent, string propertyName)
     {
