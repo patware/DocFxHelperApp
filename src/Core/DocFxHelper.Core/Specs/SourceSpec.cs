@@ -52,6 +52,12 @@ namespace DocFxHelper.Core.Specs
     [System.Text.Json.Serialization.JsonPropertyName("defaultPage")]
     public string DefaultPage { get; init; } = $"{Utils.General.Default}.md";
 
+    /// <summary>
+    /// Sub-Folder names where images are found
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("mediaFolders")]
+    public IReadOnlyList<string>? MediaFolders { get; init; }
+
 
     /// <summary>
     /// Gets the collection of tags associated with the item.  Tags can be leveraged in Mustache templates to generate different content based on the presence of specific tags. 

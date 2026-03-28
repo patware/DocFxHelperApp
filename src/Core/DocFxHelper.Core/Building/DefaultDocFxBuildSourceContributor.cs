@@ -15,8 +15,8 @@ namespace DocFxHelper.Core.Building
       fragment.Content.Add(DocFxBuildEntryFactory.CreateMarkdownContent(node));
 
       fragment.Resource.Add(
-        DocFxBuildEntryFactory.CreateResource(node, "**/*.{png,jpg,jpeg,gif,svg,webp,ico}"
-      ));
+        DocFxBuildEntryFactory.CreateResource(node, "**/*.{png,jpg,jpeg,gif,svg,webp,ico}")
+      );
 
       return fragment;
     }

@@ -11,5 +11,15 @@ namespace DocFxHelper.Core.Specs
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("apiJson")]
     public required string ApiJson { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("apiJsonFormat")]
+    public required ApiJsonFormats ApiJsonFormat { get; set; }
+
+    public enum ApiJsonFormats
+    {
+      Swagger2,
+      OpenApi3
+
+    }
   }
 }
