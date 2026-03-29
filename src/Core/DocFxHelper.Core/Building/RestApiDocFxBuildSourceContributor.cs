@@ -14,7 +14,7 @@ namespace DocFxHelper.Core.Building
       var fragment = new DocFxBuildFragment();
 
       var content = DocFxBuildEntryFactory.CreateBaseContent(node);
-      content["files"] = new JsonArray(sourceSpec.ApiJson);
+      content["files"] = new JsonArray(sourceSpec.ApiJson, "toc.yml");
       fragment.Content.Add(content);
 
       fragment.Resource.Add(

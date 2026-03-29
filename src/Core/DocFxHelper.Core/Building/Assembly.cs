@@ -44,32 +44,7 @@ namespace DocFxHelper.Core.Building
 
       _logger.LogInformation("Clean Staging");
 
-      var folders = _fileSystem.GetDirectories(buildPaths.Staging, false);
-      foreach (var folder in folders)
-      {
-        try
-        {
-          _fileSystem.DeleteDirectory(folder);
-        }
-        catch (Exception ex)
-        {
-          _logger.LogWarning("Couldn't delete folder {folder} - skipping.  Exception: {message}", folder, ex.Message);
-        }
-      }
-
-      var files = _fileSystem.GetFiles(buildPaths.Staging, "*", false);
-
-      foreach (var file in files)
-      {
-        try
-        {
-          _fileSystem.DeleteFile(file);
-        }
-        catch(Exception ex)
-        {
-          _logger.LogWarning("Couldn't delete file {file} - skipping.  Exception: {message}", file, ex.Message);
-        }
-      }
+      CleanStaging(buildPaths);
 
       _fileSystem.CreateDirectory(buildPaths.Staging);
 
@@ -96,7 +71,36 @@ namespace DocFxHelper.Core.Building
 
 
     }
-    
+
+    private void CleanStaging(BuildPaths buildPaths)
+    {
+      var folders = _fileSystem.GetDirectories(buildPaths.Staging, false);
+      foreach (var folder in folders)
+      {
+        try
+        {
+          _fileSystem.DeleteDirectory(folder);
+        }
+        catch (Exception ex)
+        {
+          _logger.LogWarning("Couldn't delete folder {folder} - skipping.  Exception: {message}", folder, ex.Message);
+        }
+      }
+
+      var files = _fileSystem.GetFiles(buildPaths.Staging, "*", false);
+
+      foreach (var file in files)
+      {
+        try
+        {
+          _fileSystem.DeleteFile(file);
+        }
+        catch (Exception ex)
+        {
+          _logger.LogWarning("Couldn't delete file {file} - skipping.  Exception: {message}", file, ex.Message);
+        }
+      }
+    }
 
     private async Task LinkChildSourcesToParent(BuildPaths buildPaths, SiteGraph siteGraph, CancellationToken ct = default!)
     {

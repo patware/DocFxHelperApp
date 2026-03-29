@@ -66,10 +66,9 @@ namespace DocFxHelper.Infrastructure.DocFx
         throw new ApplicationException("Dev goof - GetInstallMetadataAsync not ran.");
       }
 
-      _logger.LogInformation("Running docfx to generate the api metadata");
+      _logger.LogInformation("docfx metadata on {workingDirectory}", workingDirectory);
       var result = await _dotnetHelper.RunTool(workingDirectory, _installationMetadata.Command, _docfx_metadata);
-
-      _logger.LogInformation("docfx return code {exitCode}", result.ExitCode);
+      _logger.LogInformation("docfx metadata return code: {exitCode}", result.ExitCode);
 
       return result.ExitCode;
     }

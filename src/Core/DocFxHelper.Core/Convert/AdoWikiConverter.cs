@@ -32,11 +32,12 @@ namespace DocFxHelper.Core.Convert
 
     private readonly Uri _baseUri = new("https://localhost/");
 
-    public override async Task Convert(Abstractions.Engine.BuildPaths buildPaths, AdoWikiSourceSpec sourceSpec, CancellationToken ct = default)
+    public override async Task<int> Convert(Abstractions.Engine.BuildPaths buildPaths, AdoWikiSourceSpec sourceSpec, CancellationToken ct = default)
     {
-      _logger.LogInformation("Ado Wiki Conversion started");
+      _logger.LogInformation("---------------");
+      _logger.LogInformation("Ado Wiki [{id}] Conversion started", sourceSpec.Id);
 
-      _logger.LogInformation("Step 0 - Move Wiki from Sources/ to Converted/");
+      _logger.LogInformation("Task 0 - Move Wiki from Sources/ to Converted/");
 
       var sourceFolder = System.IO.Path.Combine(buildPaths.Sources, sourceSpec.Id);
       var convertedFolder = System.IO.Path.Combine(buildPaths.Converted, sourceSpec.Id);
@@ -58,13 +59,13 @@ namespace DocFxHelper.Core.Convert
 
       _logger.LogInformation("Number of .md files: {countOfMdFiles}", mdFiles.Count);
 
-      _logger.LogInformation("Step 1 - Set Initial Yaml Headers");
+      _logger.LogInformation("Task 1 - Set Initial Yaml Headers");
       foreach (var mdFile in mdFiles)
       {
         await SetInitialYamlHeaders(convertedFolder, wikiBase, mdFile, ct);
       }
 
-      _logger.LogInformation("Step 2 - Snapshot .order files to the corresponding md file guid");
+      _logger.LogInformation("Task 2 - Snapshot .order files to the corresponding md file guid");
       var dotOrderFiles = _fileSystem.GetFiles(convertedFolder, ".order", true);
       foreach(var dotOrderFile in dotOrderFiles)
       {
@@ -75,7 +76,7 @@ namespace DocFxHelper.Core.Convert
 
       if (sourceSpec.Promote != null && sourceSpec.Promote.Any())
       {
-        _logger.LogInformation("Step 3 - Promote Pages - {count} specified", sourceSpec.Promote.Count);
+        _logger.LogInformation("Task 3 - Promote Pages - {count} specified", sourceSpec.Promote.Count);
 
         foreach (var promote in sourceSpec.Promote)
         {
@@ -84,7 +85,7 @@ namespace DocFxHelper.Core.Convert
       }
       else
       {
-        _logger.LogInformation("Step 3 - Promote Pages - none specified");
+        _logger.LogInformation("Task 3 - Promote Pages - none specified");
       }
 
       if (promotionDic.Any())
@@ -92,33 +93,33 @@ namespace DocFxHelper.Core.Convert
         mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
       }
 
-      _logger.LogInformation("Step 3 - Prepare Hyperlinks");
+      _logger.LogInformation("Task 3 - Prepare Hyperlinks");
       foreach (var mdFile in mdFiles)
       {
         await PrepareHyperlinks(convertedFolder, wikiBase, mdFile, ct);
       }
 
-      _logger.LogInformation("Step 4 - Rename [md Files] to DocFx safe name format");
+      _logger.LogInformation("Task 4 - Rename [md Files] to DocFx safe name format");
       foreach (var mdFile in mdFiles)
       {
         await RenameMdFilesToDocFxSafeFormat(convertedFolder, wikiBase, mdFile, ct);
       }
 
-      _logger.LogInformation("Step 5 - Rename [Folders] to DocFx safe name format");
+      _logger.LogInformation("Task 5 - Rename [Folders] to DocFx safe name format");
       var renamedFoldersDic = await RenameFoldersToDocFxSafeFormat(convertedFolder, ct);
 
-      _logger.LogInformation("Step 6 - Finalize Hyperlinks");
+      _logger.LogInformation("Task 6 - Finalize Hyperlinks");
 
-      _logger.LogInformation("Step 7 - Update Mermaid Code Delimiters");
+      _logger.LogInformation("Task 7 - Update Mermaid Code Delimiters");
       mdFiles = _fileSystem.GetFiles(convertedFolder, "*.md", true);
       foreach(var mdFile in mdFiles)
       {
         await UpdateMermaidCodeDelimiters(mdFile, ct);
       }
 
-      _logger.LogInformation("Step 8 - Set each page's UID");
+      _logger.LogInformation("Task 8 - Set each page's UID");
 
-      _logger.LogInformation("Step 9 - Convert .order to toc.yml");
+      _logger.LogInformation("Task 9 - Convert .order to toc.yml");
 
       var folders = renamedFoldersDic.Values;
 
@@ -142,9 +143,9 @@ namespace DocFxHelper.Core.Convert
         await ConvertOrderToToc(dotOrder, isTopNav, promotionDic);
       }
 
-      await Task.CompletedTask;
+      _logger.LogInformation("Ado Wiki [{id}] Converted", sourceSpec.Id);
 
-      _logger.LogInformation("{id} Converted", sourceSpec.Id);
+      return 0;
     }
 
     private async Task UpdateMermaidCodeDelimiters(string mdFile, CancellationToken ct = default)

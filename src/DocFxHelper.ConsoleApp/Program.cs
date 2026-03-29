@@ -1,4 +1,5 @@
-﻿using DocFxHelper.Core.Utils;
+﻿using DocFxHelper.Core.Convert;
+using DocFxHelper.Core.Utils;
 using DocFxHelper.Infrastructure.DocFx;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,8 @@ builder.Services.AddSingleton<DocFxHelper.Core.Building.IDocFxBuildSourceContrib
 
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>(nameof(DocFxHelper.Core.Specs.AdoWikiSourceSpec));
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.DotnetApiConverter>(nameof(DocFxHelper.Core.Specs.DotnetApiSourceSpec));
+builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.RestApiConverter>(nameof(DocFxHelper.Core.Specs.RestApiSourceSpec));
+
 
 builder.Services.AddSingleton<IDocFxHelper, DocFxHelper.Infrastructure.DocFx.DocFxHelper>();
 

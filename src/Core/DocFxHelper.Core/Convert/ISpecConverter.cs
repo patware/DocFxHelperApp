@@ -7,6 +7,6 @@ namespace DocFxHelper.Core.Convert
   public interface ISpecConverter
   {
     Type SourceType { get; }
-    Task ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, Specs.SourceSpec sourceSpec, CancellationToken ct = default);
+    Task<int> ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, Specs.SourceSpec sourceSpec, CancellationToken ct = default);
   }
 }

@@ -45,9 +45,11 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Docfx not found");        
       }
 
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 1 - Recon");
       var readyDrops = _scout.Recon(buildPaths.Drop);
 
+      _logger.LogInformation("----------------------------------");
       if (readyDrops.Any())
       {
         _logger.LogInformation("Step 2 - Ingestion");
@@ -62,7 +64,7 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Step 2 - Ingestion: skipped, nothing to ingest");
       }
 
-
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 3 - Conversion");
 
       var siteGraph = await _graphBuilder.BuildAsync(buildPaths.Sources, ct);
@@ -88,6 +90,7 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("Step 3 - Conversion: skipped, no sources in _sources folder");
       }
 
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 4 - PreAssembly verification");
       _logger.LogInformation("Step 4 - PreAssembly verification - Orphan folders");
       var orphans = _verification.GetOrphanFolders(buildPaths, siteGraph.BuildContext);
@@ -105,11 +108,14 @@ namespace DocFxHelper.Core.Engine
         _logger.LogInformation("No orphan folder");
       }
 
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 5 - Assembly");
       await _assembly.Assemble(buildPaths, siteGraph, ct);
 
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 6 - Compilation (not implemented yet)");
 
+      _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 7 - Publication (not implemented yet)");
 
       _logger.LogInformation("Completed processing run {RunId}", run.Id);

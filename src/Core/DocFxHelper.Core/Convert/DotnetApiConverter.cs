@@ -20,9 +20,10 @@ namespace DocFxHelper.Core.Convert
     private readonly IGeneral _general = general;
     private readonly IDocFxHelper _docfxHelper = docfxHelper;
 
-    public override async Task Convert(BuildPaths buildPaths, DotnetApiSourceSpec sourceSpec, CancellationToken ct = default)
+    public override async Task<int> Convert(BuildPaths buildPaths, DotnetApiSourceSpec sourceSpec, CancellationToken ct = default)
     {
-      _logger.LogInformation("Dotnet Api Conversion started");
+      _logger.LogInformation("---------------");
+      _logger.LogInformation("Dotnet Api [{id}] Conversion started", sourceSpec.Id);
 
       var sourceFolder = System.IO.Path.Combine(buildPaths.Sources, sourceSpec.Id);
       var convertedFolder = System.IO.Path.Combine(buildPaths.Converted, sourceSpec.Id);
@@ -57,10 +58,11 @@ namespace DocFxHelper.Core.Convert
         await _fileSystem.WriteAllTextAsync(docfxJson, docfx_metadata);
       }
 
-      _logger.LogInformation("Running docfx to generate the api metadata");
+      _logger.LogInformation("Calling docfx to generate the api metadata");
       var result = await _docfxHelper.RunDocfxMetadataAsync(sourceFolder, ct);
-      _logger.LogInformation("docfx return value: {returnValue}", result);
 
+      _logger.LogInformation("Dotnet Api [{id}] Converted", sourceSpec.Id);
+      return result;
 
     }
   }
