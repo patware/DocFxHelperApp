@@ -1,4 +1,5 @@
-﻿using DocFxHelper.Core.Specs;
+﻿using DocFxHelper.Core.Graph;
+using DocFxHelper.Core.Specs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,18 +29,18 @@ namespace DocFxHelper.Core.Convert
 
     }
 
-    public async Task ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SourceSpec sourceSpec, CancellationToken ct = default!)
+    public async Task ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SiteNode siteNode, CancellationToken ct = default!)
     {
-      _logger.LogInformation("Checking if {id} needs conversion...", sourceSpec.Id);
+      _logger.LogInformation("Checking if {id} needs conversion...", siteNode.Id);
 
-      if (_converters.TryGetValue(sourceSpec.GetType(), out var converter))
+      if (_converters.TryGetValue(siteNode.SourceSpec.GetType(), out var converter))
       {
-        _logger.LogInformation("...{id} needs conversion", sourceSpec.Id);
-        await converter.ConvertAsync(buildPaths, sourceSpec, ct);
+        _logger.LogInformation("...{id} needs conversion", siteNode.Id);
+        await converter.ConvertAsync(buildPaths, siteNode.SourceSpec, siteNode.BuildSpec, ct);
       }
       else
       {
-        _logger.LogInformation("...No conversion necessary for {id}", sourceSpec.Id);
+        _logger.LogInformation("...No conversion necessary for {id}", siteNode.Id);
       }
     }
   }

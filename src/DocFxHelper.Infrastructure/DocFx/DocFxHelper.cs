@@ -10,8 +10,6 @@ namespace DocFxHelper.Infrastructure.DocFx
     private readonly ILogger<DocFxHelper> _logger = logger;
     private readonly IDotnetHelper _dotnetHelper = dotnetHelper;
 
-    private readonly IReadOnlyList<string> _docfx_metadata = ["metadata"];
-
     private DocFxInstallationMetadata? _installationMetadata;
 
     public async Task<DocFxInstallationMetadata> GetInstallMetadataAsync(CancellationToken ct = default)
@@ -67,10 +65,26 @@ namespace DocFxHelper.Infrastructure.DocFx
       }
 
       _logger.LogInformation("docfx metadata on {workingDirectory}", workingDirectory);
-      var result = await _dotnetHelper.RunTool(workingDirectory, _installationMetadata.Command, _docfx_metadata);
+      var result = await _dotnetHelper.RunTool(workingDirectory, _installationMetadata.Command, ["metadata"]);
       _logger.LogInformation("docfx metadata return code: {exitCode}", result.ExitCode);
 
       return result.ExitCode;
     }
+
+    public async Task<int> Build(string workingDirectory, CancellationToken ct = default)
+    {
+      if (_installationMetadata == null)
+      {
+        throw new ApplicationException("Dev goof - GetInstallMetadataAsync not ran.");
+      }
+
+      _logger.LogInformation("docfx build on {workingDirectory}", workingDirectory);
+      var result = await _dotnetHelper.RunTool(workingDirectory, _installationMetadata.Command, ["build"]);
+      _logger.LogInformation("docfx build return code: {exitCode}", result.ExitCode);
+
+      return result.ExitCode;
+
+    }
+
   }
 }

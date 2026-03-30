@@ -74,6 +74,7 @@ namespace DocFxHelper.Core.Graph
         var nodeItem = stack.Pop();
         
         var sourceSpec = buildContext.Sources[nodeItem.ResourceId];
+        var buildSpec = buildContext.Builds[nodeItem.ResourceId];
 
         var childList = new List<SiteNode>();
 
@@ -86,6 +87,7 @@ namespace DocFxHelper.Core.Graph
           Id = nodeItem.ResourceId,
           DisplayName = sourceSpec.DisplayName,
           SourceSpec = sourceSpec,
+          BuildSpec = buildSpec,
           Path = nodeItem.TargetRelativePath,
           ShowInToc = nodeItem.ShowInToc,
           DefaultPage = sourceSpec.DefaultPage,
@@ -137,7 +139,6 @@ namespace DocFxHelper.Core.Graph
       _logger.LogInformation("Fetching list of sub folders");
       var sourceSubFolders = _fileSystem.GetDirectories(path, false);
 
-
       (string? masterDirectory, MasterSpec? master) = await GetMasterSpecFromSubFoldersAsync(sourceSubFolders);
 
       if (masterDirectory == null || master == null)
@@ -146,12 +147,15 @@ namespace DocFxHelper.Core.Graph
       }
 
       IReadOnlyDictionary<string,SourceSpec> sourcesDic = await GetSourceSpecsFromSubfoldersAsync(sourceSubFolders, master);
+      IReadOnlyDictionary<string, BuildSpec> buildDic = await GetBuildSpecsFromSubfoldersAsync(sourceSubFolders, master);
 
       var gbc = new GraphBuildContext
       {
         Master = master,
-        Sources = sourcesDic
+        Sources = sourcesDic,
+        Builds = buildDic
       };
+
 
       return gbc;
 
@@ -205,6 +209,47 @@ namespace DocFxHelper.Core.Graph
           if (sourceSpec != null)
           {
             dic.Add(ni.ResourceId, sourceSpec);
+          }
+
+        }
+      }
+
+      return dic;
+
+    }
+
+    private async Task<IReadOnlyDictionary<string, BuildSpec>> GetBuildSpecsFromSubfoldersAsync(IEnumerable<string> sourceSubFolders, MasterSpec master)
+    {
+
+      var dic = new Dictionary<string, BuildSpec>();
+
+      if (master.Root == null)
+      {
+        return dic;
+      }
+
+      var queue = new System.Collections.Generic.Queue<NodeItem>();
+
+      queue.Enqueue(master.Root);
+
+      while (queue.Count > 0)
+      {
+        var ni = queue.Dequeue();
+
+        foreach (var child in ni.Children)
+        {
+          queue.Enqueue(child);
+        }
+
+        var rsxFolder = sourceSubFolders.FirstOrDefault(s => (new System.IO.DirectoryInfo(s)).Name == ni.ResourceId);
+
+        if (rsxFolder != null && _fileSystem.DirectoryExists(rsxFolder))
+        {
+          var buildSpec = await _specLoader.LoadBuildSpecAsync(System.IO.Path.Combine(rsxFolder, Specs.BuildSpec.FileName));
+
+          if (buildSpec != null)
+          {
+            dic.Add(ni.ResourceId, buildSpec);
           }
 
         }

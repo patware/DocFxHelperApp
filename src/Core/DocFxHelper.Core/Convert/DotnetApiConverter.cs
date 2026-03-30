@@ -20,7 +20,7 @@ namespace DocFxHelper.Core.Convert
     private readonly IGeneral _general = general;
     private readonly IDocFxHelper _docfxHelper = docfxHelper;
 
-    public override async Task<int> Convert(BuildPaths buildPaths, DotnetApiSourceSpec sourceSpec, CancellationToken ct = default)
+    public override async Task<int> Convert(BuildPaths buildPaths, DotnetApiSourceSpec sourceSpec, BuildSpec buildSpec, CancellationToken ct = default)
     {
       _logger.LogInformation("---------------");
       _logger.LogInformation("Dotnet Api [{id}] Conversion started", sourceSpec.Id);

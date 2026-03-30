@@ -1,5 +1,7 @@
 ﻿using DocFxHelper.Core.Graph;
+using DocFxHelper.Core.Specs;
 using DocFxHelper.Core.Utils;
+using DocFxHelper.Infrastructure.DocFx;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,7 +18,8 @@ namespace DocFxHelper.Core.Engine
     IVerification verification,
     Graph.IGraphBuilder graphBuilder,
     Convert.IConversion conversionService,
-    Building.IAssembly assembly) : IProcessor
+    Building.IAssembly assembly,
+    IDocFxHelper docfxHelper) : IProcessor
   {
     private readonly ILogger<NaiveSequentialProcessor> _logger = logger;
     private readonly Utils.IGeneral _general = general;
@@ -26,6 +29,7 @@ namespace DocFxHelper.Core.Engine
     private readonly IGraphBuilder _graphBuilder = graphBuilder;
     private readonly Convert.IConversion _conversionService = conversionService;
     private readonly Building.IAssembly _assembly = assembly;
+    private readonly IDocFxHelper _docfxHelper = docfxHelper;
 
 
     public async Task ProcessAsync(Domain.Run run, CancellationToken ct = default!)
@@ -77,8 +81,9 @@ namespace DocFxHelper.Core.Engine
   
       if (siteGraph.BuildContext.Sources.Any())
       {
-        foreach (var source in siteGraph.BuildContext.Sources.Values)
+        foreach (var source in siteGraph.Sources.Values)
         {
+          
           await _conversionService.ConvertAsync(buildPaths, source, ct);
         }
 
@@ -113,7 +118,8 @@ namespace DocFxHelper.Core.Engine
       await _assembly.Assemble(buildPaths, siteGraph, ct);
 
       _logger.LogInformation("----------------------------------");
-      _logger.LogInformation("Step 6 - Compilation (not implemented yet)");
+      _logger.LogInformation("Step 6 - Compilation");
+      await _docfxHelper.Build(buildPaths.Staging, ct);
 
       _logger.LogInformation("----------------------------------");
       _logger.LogInformation("Step 7 - Publication (not implemented yet)");

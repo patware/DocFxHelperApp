@@ -4,5 +4,6 @@
   {
     Task<DocFxInstallationMetadata> GetInstallMetadataAsync(CancellationToken ct = default);
     Task<int> RunDocfxMetadataAsync(string workingDirectory, CancellationToken ct = default);
+    Task<int> Build(string workingDirectory, CancellationToken ct = default);
   }
 }

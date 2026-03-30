@@ -18,7 +18,7 @@ namespace DocFxHelper.Core.Convert
     private readonly Infrastructure.IFileSystem _fileSystem = fileSystem;
     private readonly Utils.ITocHelper _tocHelper = tocHelper;
 
-    public override async Task<int> Convert(BuildPaths buildPaths, RestApiSourceSpec sourceSpec, CancellationToken ct = default)
+    public override async Task<int> Convert(BuildPaths buildPaths, RestApiSourceSpec sourceSpec, BuildSpec buildSpec,CancellationToken ct = default)
     {
       _logger.LogInformation("---------------");
       _logger.LogInformation("REST Api [{id}] Conversion started", sourceSpec.Id);

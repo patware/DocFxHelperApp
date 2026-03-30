@@ -6,11 +6,13 @@ namespace DocFxHelper.Core.Graph
   {
     public required MasterSpec Master { get; init; }
     public required IReadOnlyDictionary<string,SourceSpec> Sources { get; init; }
+    public required IReadOnlyDictionary<string, BuildSpec> Builds { get; init; }
 
     public static GraphBuildContext Default => new()
     {
       Master = default!,
       Sources = new Dictionary<string, SourceSpec>(),
+      Builds = new Dictionary<string, BuildSpec>()
     };
     
   }

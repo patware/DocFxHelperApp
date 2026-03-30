@@ -16,6 +16,14 @@ namespace DocFxHelper.Core.Tests
         CloneUrl = "https://example.com/repo.git",
         WikiUrl = "https://example.com/wiki",
         MediaFolders = [".attachments", "media", "screenshots"]
+      }, new BuildSpec
+      {
+        AuthorEmail = "Iam.me@home.net",
+        AuthorName = "Iam Me",
+        BranchName = "NotMain",
+        BuildId = "20250329.0",
+        CommitId = "ed21059d6f1d460b0ce3a360d2c6f9050ae82bd2",
+        SourceName = "Unit Test"
       });
 
       var resource = DocFxBuildEntryFactory.CreateResource(node, "**/*.{png,jpg,jpeg,gif,svg,webp,ico}");
@@ -40,6 +48,14 @@ namespace DocFxHelper.Core.Tests
         DisplayName = "Guidance",
         CloneUrl = "https://example.com/repo.git",
         WikiUrl = "https://example.com/wiki"
+      }, new BuildSpec
+      { 
+        AuthorEmail = "Iam.me@home.net",
+        AuthorName = "Iam Me",
+        BranchName = "NotMain",
+        BuildId = "20250329.0",
+        CommitId = "ed21059d6f1d460b0ce3a360d2c6f9050ae82bd2",
+        SourceName = "Unit Test"
       });
 
       var resource = DocFxBuildEntryFactory.CreateResource(node, "**/*.{png,jpg,jpeg,gif,svg,webp,ico}");
@@ -49,7 +65,7 @@ namespace DocFxHelper.Core.Tests
       Assert.Equal(["**/*.{png,jpg,jpeg,gif,svg,webp,ico}"], files);
     }
 
-    private static SiteNode CreateNode(SourceSpec sourceSpec)
+    private static SiteNode CreateNode(SourceSpec sourceSpec, BuildSpec buildSpec)
     {
       return new SiteNode
       {
@@ -58,6 +74,7 @@ namespace DocFxHelper.Core.Tests
         Path = "docs",
         ShowInToc = true,
         SourceSpec = sourceSpec,
+        BuildSpec = buildSpec,
         DefaultPage = sourceSpec.DefaultPage
       };
     }

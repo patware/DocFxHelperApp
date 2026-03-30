@@ -10,11 +10,12 @@ namespace DocFxHelper.Core.Convert
   {
     public Type SourceType => typeof(T);
 
-    public async Task<int> ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SourceSpec sourceSpec, CancellationToken ct = default)
+    public async Task<int> ConvertAsync(Abstractions.Engine.BuildPaths buildPaths, SourceSpec sourceSpec, BuildSpec buildSpec, CancellationToken ct = default)
+      
     {
-      return await Convert(buildPaths, (T)sourceSpec, ct);
+      return await Convert(buildPaths, (T)sourceSpec, buildSpec, ct);
     }
 
-    public abstract Task<int> Convert(Abstractions.Engine.BuildPaths buildPaths, T sourceSpec, CancellationToken ct = default);
+    public abstract Task<int> Convert(Abstractions.Engine.BuildPaths buildPaths, T sourceSpec, BuildSpec buildSpec, CancellationToken ct = default);
   }
 }

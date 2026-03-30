@@ -32,7 +32,7 @@ namespace DocFxHelper.Core.Convert
 
     private readonly Uri _baseUri = new("https://localhost/");
 
-    public override async Task<int> Convert(Abstractions.Engine.BuildPaths buildPaths, AdoWikiSourceSpec sourceSpec, CancellationToken ct = default)
+    public override async Task<int> Convert(Abstractions.Engine.BuildPaths buildPaths, AdoWikiSourceSpec sourceSpec, BuildSpec buildSpec, CancellationToken ct = default)
     {
       _logger.LogInformation("---------------");
       _logger.LogInformation("Ado Wiki [{id}] Conversion started", sourceSpec.Id);
@@ -60,9 +60,10 @@ namespace DocFxHelper.Core.Convert
       _logger.LogInformation("Number of .md files: {countOfMdFiles}", mdFiles.Count);
 
       _logger.LogInformation("Task 1 - Set Initial Yaml Headers");
+            
       foreach (var mdFile in mdFiles)
       {
-        await SetInitialYamlHeaders(convertedFolder, wikiBase, mdFile, ct);
+        await SetInitialYamlHeaders(convertedFolder, wikiBase, buildSpec.BranchName, mdFile, ct);
       }
 
       _logger.LogInformation("Task 2 - Snapshot .order files to the corresponding md file guid");
@@ -456,11 +457,12 @@ namespace DocFxHelper.Core.Convert
       return (new Uri(wikiBase, relativePath.Replace("\\", "/"))).ToString();
     }
 
-    private async Task SetInitialYamlHeaders(string rootPath, Uri wikiBase, string mdFilePath, CancellationToken ct = default)
+    private async Task SetInitialYamlHeaders(string rootPath, Uri wikiBase, string branchName, string mdFilePath, CancellationToken ct = default)
     {
       var markdown = await _fileSystem.ReadAllTextAsync(mdFilePath, ct);
 
       var mdUrl = GetMdUid(rootPath, wikiBase, mdFilePath);
+      var docUrl = GetDocUrl(rootPath, wikiBase, branchName, mdFilePath);
 
       var document = Markdown.Parse(markdown, _pipeline);
       var yamlHeader = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
@@ -471,6 +473,7 @@ namespace DocFxHelper.Core.Convert
         $"""
         ---
         uid: {mdUrl}
+        docurl: {docUrl}
         ---
         """;
 
@@ -508,6 +511,20 @@ namespace DocFxHelper.Core.Convert
 
       await _fileSystem.WriteAllTextAsync(mdFilePath, markdown, ct);
 
+    }
+
+    private static string GetDocUrl(string rootPath, Uri wikiBase, string branch, string mdFilePath)
+    {
+      var separator = wikiBase.AbsolutePath.EndsWith('/') ? string.Empty : "/";
+
+      var mdFileFolderPath = Path.GetDirectoryName(mdFilePath); 
+      var mdFileBase = Path.GetFileNameWithoutExtension(mdFilePath);
+      var mdRelativePath = Path.GetRelativePath(rootPath, string.Concat(mdFileFolderPath, "/", mdFileBase));
+      var localhost = new Uri(string.Concat("http://localhost/", mdRelativePath));
+
+      var docUrl = string.Concat(wikiBase.AbsoluteUri, separator, "pages?path=", localhost.AbsolutePath, "&recursionLevel=0&versionDescriptor.version=", branch, "&includeContent=true");
+
+      return docUrl;
     }
 
     private async Task Snapshot(string convertedFolder, Uri wikiBase, string dotOrderFile, CancellationToken ct)
