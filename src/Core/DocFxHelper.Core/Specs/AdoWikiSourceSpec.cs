@@ -18,5 +18,8 @@ namespace DocFxHelper.Core.Specs
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("promote")]
     public List<string>? Promote { get; init; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("wikiEditorBranchName")]
+    public string? WikiEditorBranchName { get; init; }
   }
 }
