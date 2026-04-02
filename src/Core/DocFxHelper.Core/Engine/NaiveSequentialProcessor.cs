@@ -81,10 +81,10 @@ namespace DocFxHelper.Core.Engine
   
       if (siteGraph.BuildContext.Sources.Any())
       {
-        foreach (var source in siteGraph.Sources.Values)
+        foreach (var source in siteGraph.Items.Values)
         {
           
-          await _conversionService.ConvertAsync(buildPaths, source, ct);
+          await _conversionService.ConvertAsync(buildPaths, source.Item, ct);
         }
 
         _logger.LogInformation("Step 3 - Conversion: Done");

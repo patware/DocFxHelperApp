@@ -1,6 +1,8 @@
-﻿using DocFxHelper.Core.Resources;
+﻿using DocFxHelper.Core.Properties;
+using DocFxHelper.Core.Resources;
 using DocFxHelper.Core.Specs;
 using DocFxHelper.Infrastructure;
+using Markdig.Syntax;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -29,25 +31,7 @@ namespace DocFxHelper.Core.Graph
         return SiteGraph.Default;
       }
 
-      var (rootNode, nodes) = await GetNodesFromBuildContextAsync(buildContext);
-
-      if (rootNode == null)
-      {
-        return SiteGraph.Default;
-      }
-
-      var siteGraph = new SiteGraph
-      {
-        // Provide a placeholder root. Replace with a real SiteNode when available.
-        Root = rootNode,
-
-        // Create an empty dictionary for Sources. Populate this with real SourceNode instances when mapping is implemented.
-        Sources = nodes,
-
-        // Provide a placeholder build context. Replace with a real GraphBuildContext when available.
-        BuildContext = buildContext
-      };
-
+      var siteGraph = await GetGraphFromBuildContextAsync(buildContext);
 
       return siteGraph;
     }
@@ -57,83 +41,94 @@ namespace DocFxHelper.Core.Graph
     /// </summary>
     /// <param name="buildContext"></param>
     /// <returns></returns>
-    private static async Task<(SiteNode?, IReadOnlyDictionary<string, SiteNode>)> GetNodesFromBuildContextAsync(GraphBuildContext buildContext)
+    private static async Task<SiteGraph> GetGraphFromBuildContextAsync(GraphBuildContext buildContext)
     {
 
-      var dic = new Dictionary<string, SiteNode>();
+      var siteGraph = new SiteGraph
+      {
+        BuildContext = buildContext
+      };
 
       if (buildContext.Master.Root == null)
-        return (null, dic);
+        return siteGraph;
 
-      var stack = GetNodeItemStack(buildContext);
-            
-      SiteNode? rootNode = null;
+      var queue = new Queue<NodeItem>();
 
-      while (stack.Count > 0)
+      queue.Enqueue(buildContext.Master.Root);
+
+      var parentDic = new Dictionary<string, NodeItem>();
+
+      do
       {
-        var nodeItem = stack.Pop();
-        
+
+        var nodeItem = queue.Dequeue();
+
         var sourceSpec = buildContext.Sources[nodeItem.ResourceId];
         var buildSpec = buildContext.Builds[nodeItem.ResourceId];
 
-        var childList = new List<SiteNode>();
-
-        foreach(var childId in nodeItem.Children.Select(s => s.ResourceId))
+        foreach(var child in nodeItem.Children)
         {
-          childList.Add(dic[childId]);
+          parentDic.Add(child.ResourceId, nodeItem);
+          queue.Enqueue(child);
         }
 
-        var sn = new SiteNode { 
+        string dest = string.Empty;
+
+        NodeItem? parentNodeItem = null;
+
+        if (parentDic.ContainsKey(nodeItem.ResourceId))
+        {
+          parentNodeItem = parentDic[nodeItem.ResourceId];
+
+          var parentSiteNode = siteGraph.Items[parentNodeItem.ResourceId];
+
+          var segments = new List<string>();
+
+          segments.AddRange(parentSiteNode
+            .Item
+            .Dest
+            .Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+
+          segments.AddRange(nodeItem
+            .TargetRelativePath
+            .Replace('/', Path.DirectorySeparatorChar)
+            .Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+
+          dest = string.Join(Path.DirectorySeparatorChar, segments);
+           
+        }
+
+
+
+        var siteNode = new SiteNode
+        {
           Id = nodeItem.ResourceId,
           DisplayName = sourceSpec.DisplayName,
           SourceSpec = sourceSpec,
           BuildSpec = buildSpec,
           Path = nodeItem.TargetRelativePath,
+          Dest = dest,
           ShowInToc = nodeItem.ShowInToc,
           DefaultPage = sourceSpec.DefaultPage,
           TocItemInsertAtIndex = nodeItem.TocItemInsertAtIndex,
-          ParentTocDisplayName = nodeItem.ParentTocDisplayName,
-          Children = childList
+          ParentTocDisplayName = nodeItem.ParentTocDisplayName
         };
         
-        if (sn.Id == buildContext.Master.Root.ResourceId)
+        if (parentNodeItem == null)
         {
-          rootNode = sn;
+          siteGraph.Add(siteNode.Id, siteNode);
+        }
+        else
+        {
+          siteGraph.Add(parentNodeItem.ResourceId, nodeItem.ResourceId, siteNode);          
         }
 
-        dic.Add(sn.Id, sn);
+      }while(queue.Count > 0);
 
-      }
 
-      return (rootNode, dic);
+      return siteGraph;
     }
-
-    private static System.Collections.Generic.Stack<NodeItem> GetNodeItemStack(GraphBuildContext buildContext)
-    {
-      var stack = new System.Collections.Generic.Stack<NodeItem>();
-      var queue = new System.Collections.Generic.Queue<NodeItem>();
-
-      if (buildContext.Master == null || buildContext.Master.Root == null)
-      {
-        return stack;
-      }
-
-      queue.Enqueue(buildContext.Master.Root);
-
-      while (queue.Count > 0)
-      {
-        var ni = queue.Dequeue();
-        stack.Push(ni);
-
-        foreach (var child in ni.Children)
-        {
-          queue.Enqueue(child);
-        }
-      }
-
-      return stack;
-    }
-
+    
     private async Task<GraphBuildContext> GetBuildContextAsync(string path)
     {
       _logger.LogInformation("Fetching list of sub folders");

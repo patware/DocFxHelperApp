@@ -49,9 +49,9 @@ namespace DocFxHelper.Core.Building
       _fileSystem.CreateDirectory(buildPaths.Staging);
 
       _logger.LogInformation("Copy Sources to Staging");
-      foreach (var kvp in siteGraph.Sources)
+      foreach (var kvp in siteGraph.Items)
       {
-        CopySourceToStaging(kvp.Value, buildPaths);
+        CopySourceToStaging(kvp.Value.Item, buildPaths);
       }
 
       _logger.LogInformation("Process Mustache Templates");
@@ -104,25 +104,32 @@ namespace DocFxHelper.Core.Building
 
     private async Task LinkChildSourcesToParent(BuildPaths buildPaths, SiteGraph siteGraph, CancellationToken ct = default!)
     {
-      var queue = new System.Collections.Generic.Queue<SiteNode>();
+      var queue = new System.Collections.Generic.Queue<HierarchyItem<string, SiteNode>>();
+
+      if (siteGraph.Root == null)
+      {
+        return;
+      }
+
+      var mainTocYml = Path.Combine(buildPaths.Staging, siteGraph.Root.Item.Id, "toc.yml");
 
       queue.Enqueue(siteGraph.Root);
 
       while (queue.Count > 0)
       {
-        var siteNode = queue.Dequeue();
+        var parent = queue.Dequeue();
 
-        foreach (var child in siteNode.Children)
+        foreach (var child in parent.Children)
         {
           queue.Enqueue(child);
 
-          await LinkChildSourceToParent(buildPaths, siteNode, child, ct);
+          await LinkChildSourceToParent(buildPaths, mainTocYml, parent.Item, child.Item, ct);
         }
 
       }
     }
 
-    private async Task LinkChildSourceToParent(BuildPaths buildPaths, SiteNode parent, SiteNode child, CancellationToken ct)
+    private async Task LinkChildSourceToParent(BuildPaths buildPaths, string mainTocYml, SiteNode parent, SiteNode child, CancellationToken ct)
     {
       if (!child.ShowInToc)
       {
@@ -199,8 +206,38 @@ namespace DocFxHelper.Core.Building
 
       var childNodePath = System.IO.Path.Combine(buildPaths.Staging, child.Id);
       var childPathRelativeToParentFolder = System.IO.Path.GetRelativePath(parentTocFolder, childNodePath);
+           
 
-      childTocItem.Href = string.Concat(childPathRelativeToParentFolder, Path.DirectorySeparatorChar);
+      var isMainToc = string.Equals(parentTocPath, mainTocYml, StringComparison.InvariantCultureIgnoreCase);
+
+      var parentTocFolderPath = Path.GetDirectoryName(parentTocPath)!;
+
+      if (isMainToc)
+      {
+        childTocItem.Href = string.Concat(childPathRelativeToParentFolder, Path.DirectorySeparatorChar);
+
+        if (!_fileSystem.DirectoryExists(Path.GetFullPath(childTocItem.Href, parentTocFolderPath)))
+        {
+          _logger.LogWarning("{child} folder {folder} not found", child.Id, childTocItem.Href);
+        }
+
+      }
+      else
+      {
+        childTocItem.Href = Path.Combine(childPathRelativeToParentFolder, "toc.yml");
+
+        if (!_fileSystem.FileExists(Path.GetFullPath(childTocItem.Href, parentTocFolderPath)))
+        {
+          _logger.LogWarning("{child} toc.yml {toc} not found", child.Id, childTocItem.Href);
+        }
+      }
+
+      childTocItem.Homepage = Path.Combine(childPathRelativeToParentFolder, child.DefaultPage);
+
+      if (!_fileSystem.FileExists(Path.GetFullPath(childTocItem.Homepage, parentTocFolderPath)))
+      {
+        _logger.LogWarning("{child} DefaultPage {defaultPage} not found", child.Id, childTocItem.Homepage);
+      }
 
       yaml = _tocHelper.GetString(toc);
 
@@ -249,10 +286,10 @@ namespace DocFxHelper.Core.Building
       var globalMetadata = GetOrCreateObjectStrict(build, "globalMetadata");
       var fileMetadata = GetOrCreateObjectStrict(build, "fileMetadata");
 
-      foreach (var node in siteGraph.Sources.Values)
+      foreach (var node in siteGraph.Items.Values)
       {
-        var contributor = ResolveContributor(node.SourceSpec);
-        var fragment = contributor.Create(node);
+        var contributor = ResolveContributor(node.Item.SourceSpec);
+        var fragment = contributor.Create(node.Item);
 
         AppendEntries(content, fragment.Content);
         AppendEntries(resource, fragment.Resource);
@@ -362,25 +399,6 @@ namespace DocFxHelper.Core.Building
         $"Expected '{propertyName}' to be a JSON array.");
 
     }
-
-    //private static JsonObject CreateSourceContent(SiteNode source)
-    //{
-    //  var dest = string.Empty;
-
-    //  if (!string.IsNullOrEmpty(source.Path))
-    //  {
-    //    dest = source.Path;
-    //  }
-
-    //  return new JsonObject
-    //  {
-    //    ["files"] = new JsonArray("**/*.{md,yml}"),
-    //    ["exclude"] = new JsonArray("_site/**"),
-    //    ["src"] = string.Concat(source.Id, "/"),
-    //    ["dest"] = dest
-    //  };
-
-    //}
 
     private static JsonObject GetOrCreateObjectStrict(JsonObject parent, string propertyName)
     {

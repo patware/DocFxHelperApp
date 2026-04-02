@@ -17,7 +17,7 @@ namespace DocFxHelper.Core.Building
       {
         ["exclude"] = new JsonArray("_site/**"),
         ["src"] = $"{node.Id}/",
-        ["dest"] = node.Path ?? string.Empty
+        ["dest"] = node.Dest
       };
     }
 

@@ -82,6 +82,11 @@ namespace DocFxHelper.Infrastructure.DocFx
       var result = await _dotnetHelper.RunTool(workingDirectory, _installationMetadata.Command, ["build"]);
       _logger.LogInformation("docfx build return code: {exitCode}", result.ExitCode);
 
+      if (result.ExitCode != 0)
+      {
+        _logger.LogWarning(result.Error);
+      }
+
       return result.ExitCode;
 
     }
