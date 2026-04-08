@@ -71,6 +71,7 @@ namespace DocFxHelper.Core.Tests
       {
         Id = sourceSpec.Id,
         DisplayName = sourceSpec.DisplayName,
+        Dest = "docs",
         Path = "docs",
         ShowInToc = true,
         SourceSpec = sourceSpec,
