@@ -51,6 +51,7 @@ builder.Services.AddSingleton<DocFxHelper.Core.Building.IDocFxBuildSourceContrib
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.AdoWikiConverter>(nameof(DocFxHelper.Core.Specs.AdoWikiSourceSpec));
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.DotnetApiConverter>(nameof(DocFxHelper.Core.Specs.DotnetApiSourceSpec));
 builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.RestApiConverter>(nameof(DocFxHelper.Core.Specs.RestApiSourceSpec));
+builder.Services.AddKeyedTransient<DocFxHelper.Core.Convert.ISpecConverter, DocFxHelper.Core.Convert.ConceptualConverter>(nameof(DocFxHelper.Core.Specs.ConceptualSourceSpec));
 
 
 builder.Services.AddSingleton<IDocFxHelper, DocFxHelper.Infrastructure.DocFx.DocFxHelper>();

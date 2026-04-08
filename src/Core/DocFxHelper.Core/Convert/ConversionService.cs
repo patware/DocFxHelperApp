@@ -17,7 +17,8 @@ namespace DocFxHelper.Core.Convert
     public ConversionService(ILogger<ConversionService> logger, 
       [FromKeyedServices(nameof(Specs.AdoWikiSourceSpec))] ISpecConverter adoWikiConverter,
       [FromKeyedServices(nameof(Specs.DotnetApiSourceSpec))] ISpecConverter dotnetApiConverter,
-      [FromKeyedServices(nameof(Specs.RestApiSourceSpec))] ISpecConverter restApiConverter)
+      [FromKeyedServices(nameof(Specs.RestApiSourceSpec))] ISpecConverter restApiConverter,
+      [FromKeyedServices(nameof(Specs.ConceptualSourceSpec))] ISpecConverter conceptualConverter)
     {
       _logger = logger;
 
@@ -26,6 +27,7 @@ namespace DocFxHelper.Core.Convert
       _converters.Add(typeof(Specs.AdoWikiSourceSpec), adoWikiConverter);
       _converters.Add(typeof(Specs.DotnetApiSourceSpec), dotnetApiConverter);
       _converters.Add(typeof(Specs.RestApiSourceSpec), restApiConverter);
+      _converters.Add(typeof(Specs.ConceptualSourceSpec), conceptualConverter);
 
     }
 

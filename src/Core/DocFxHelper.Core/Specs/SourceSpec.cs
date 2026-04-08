@@ -7,6 +7,7 @@ namespace DocFxHelper.Core.Specs
   [JsonDerivedType(typeof(DotnetApiSourceSpec), typeDiscriminator: nameof(SourceType.DotnetApi))]
   [JsonDerivedType(typeof(YamlApiSourceSpec), typeDiscriminator: nameof(SourceType.YamlApi))]
   [JsonDerivedType(typeof(RestApiSourceSpec), typeDiscriminator: nameof(SourceType.RestApi))]
+  [JsonDerivedType(typeof(ConceptualSourceSpec), typeDiscriminator: nameof(SourceType.Conceptual))]
 
   ///<summary>
   /// Abstract class that represents the minimum properties every source shares.
